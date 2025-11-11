@@ -211,6 +211,8 @@ int main(){
 
 			// TODO: Find pose transform by using ICP or NDT matching
 			//pose = ....
+			Eigen::Matrix4d transform = ICP(map, scan, location, 50); 
+			//Pose estimate = 
 
 			// TODO: Transform scan so it aligns with ego's actual pose and render that scan
 
