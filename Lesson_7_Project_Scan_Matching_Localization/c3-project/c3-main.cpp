@@ -35,6 +35,10 @@ using namespace std;
 #include <pcl/registration/icp.h>
 #include <pcl/registration/ndt.h>
 #include <pcl/console/time.h>   // TicToc
+#include <chrono>
+#include <ctime>
+#include <iomanip>
+
 
 PointCloudT pclCloud;
 cc::Vehicle::Control control;
@@ -196,6 +200,10 @@ int main(){
 				lastScanTime = std::chrono::system_clock::now();
 				*scanCloud = pclCloud;
 				new_scan = false;
+				std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+				std::tm* local_time = std::localtime(&now_time);
+
+				cout << "New scan completed at " << std::put_time(local_time, "%Y-%m-%d %H:%M:%S") <<  endl;
 			}
 		}
 	});
