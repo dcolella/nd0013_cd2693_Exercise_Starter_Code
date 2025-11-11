@@ -28,6 +28,7 @@ using namespace std;
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/filters/voxel_grid.h>
 #include "helper.h"
+#include "my-helper.h"
 #include <sstream>
 #include <chrono> 
 #include <ctime> 
