@@ -104,6 +104,8 @@ void drawCar(Pose pose, int num, Color color, double alpha, pcl::visualization::
 	renderBox(viewer, box, num, color, alpha);
 }
 
+enum ScanMatchAlgo{ Off, Icp, Ndt};
+
 Eigen::Matrix4d ICP(PointCloudT::Ptr target, PointCloudT::Ptr source, Pose startingPose, int iterations){
 
 	// Defining a rotation matrix and translation vector
@@ -298,10 +300,29 @@ int main(){
 
 			// TODO: Find pose transform by using ICP or NDT matching
 			//pose = ....
-			//Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
+
+			// use ICP
 			//Eigen::Matrix4d transform = ICP(mapCloud, cloudFiltered, pose, 50); 
-			Eigen::Matrix4d transform = getPoseEstimationWithNDT(mapCloud, cloudFiltered, pose, 50);
-			pose = getPose(transform);
+
+			// use NDT
+			//Eigen::Matrix4d transform = getPoseEstimationWithNDT(mapCloud, cloudFiltered, pose, 50);
+
+
+			ScanMatchAlgo matching = Ndt;
+
+			Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
+
+			if( matching != Off){
+				if( matching == Ndt)
+					transform = getPoseEstimationWithNDT(mapCloud, cloudFiltered, pose, 50);
+				else if(matching == Icp)
+					transform = ICP(mapCloud, cloudFiltered, pose, 50); 
+				
+				pose = getPose(transform);
+
+			}
+			
+			
 
 			//Pose getPoseEstimationWithNDT(PointCloudT::Ptr mapCloud, typename pcl::PointCloud<PointT>::Ptr cloudFiltered, Pose pose, int iterations){
 			//pose = getPoseEstimationWithNDT(mapCloud, cloudFiltered, pose, 50);
