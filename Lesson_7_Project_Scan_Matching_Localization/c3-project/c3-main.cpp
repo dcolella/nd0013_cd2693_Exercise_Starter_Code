@@ -122,6 +122,8 @@ Eigen::Matrix4d ICP(PointCloudT::Ptr target, PointCloudT::Ptr source, Pose start
   	icp.setInputSource (transformSource);
   	icp.setInputTarget (target);
 	icp.setMaxCorrespondenceDistance (0.7);
+	icp.setTransformationEpsilon(1e-6);
+	icp.setEuclideanFitnessEpsilon(1e-6);
 	
 
   	PointCloudT::Ptr cloud_icp (new PointCloudT);  // ICP output point cloud
