@@ -166,7 +166,7 @@ Eigen::Matrix4d NDT(pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointX
 }
 
 
-Eigen::Matrix4d transform getPoseEstimationWithNDT(PointCloudT::Ptr mapCloud, typename pcl::PointCloud<PointT>::Ptr cloudFiltered, Pose pose, int iterations){
+Eigen::Matrix4d getPoseEstimationWithNDT(PointCloudT::Ptr mapCloud, typename pcl::PointCloud<PointT>::Ptr cloudFiltered, Pose pose, int iterations){
 	pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> ndt;
 	// Setting minimum transformation difference for termination condition.
   	ndt.setTransformationEpsilon (.0001);
