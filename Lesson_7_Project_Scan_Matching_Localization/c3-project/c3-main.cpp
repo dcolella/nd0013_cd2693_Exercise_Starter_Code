@@ -166,7 +166,7 @@ Eigen::Matrix4d NDT(pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointX
 }
 
 
-Pose getPoseEstimationWithNDT(PointCloudT::Ptr mapCloud, typename pcl::PointCloud<PointT>::Ptr cloudFiltered, Pose pose, int iterations){
+Eigen::Matrix4d transform getPoseEstimationWithNDT(PointCloudT::Ptr mapCloud, typename pcl::PointCloud<PointT>::Ptr cloudFiltered, Pose pose, int iterations){
 	pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> ndt;
 	// Setting minimum transformation difference for termination condition.
   	ndt.setTransformationEpsilon (.0001);
@@ -178,10 +178,7 @@ Pose getPoseEstimationWithNDT(PointCloudT::Ptr mapCloud, typename pcl::PointClou
 
 	Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 
-	transform = NDT(ndt, cloudFiltered, pose, 3);
-
-
-	return getPose(transform);
+	return NDT(ndt, cloudFiltered, pose, 3);
 
 }
 
@@ -303,10 +300,11 @@ int main(){
 			//pose = ....
 			//Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 			//Eigen::Matrix4d transform = ICP(mapCloud, cloudFiltered, pose, 50); 
-			//pose = getPose(transform);
+			Eigen::Matrix4d transform = getPoseEstimationWithNDT(mapCloud, cloudFiltered, pose, 50);
+			pose = getPose(transform);
 
 			//Pose getPoseEstimationWithNDT(PointCloudT::Ptr mapCloud, typename pcl::PointCloud<PointT>::Ptr cloudFiltered, Pose pose, int iterations){
-			pose = getPoseEstimationWithNDT(mapCloud, cloudFiltered, pose, 50);
+			//pose = getPoseEstimationWithNDT(mapCloud, cloudFiltered, pose, 50);
 
 			// TODO: Transform scan so it aligns with ego's actual pose and render that scan
 			PointCloudT::Ptr transformed_scan (new PointCloudT);
