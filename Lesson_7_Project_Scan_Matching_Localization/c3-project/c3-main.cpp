@@ -332,12 +332,12 @@ int main(){
 				}
 				else if(matching == SpeedAdapt){
 					if(vehicle_speed < 0.3){		
-						scan_match_type = "NDT";
-						transform = getTransformWithNDT(mapCloud, cloudFiltered, pose, 50);
-					}
-					else{
 						scan_match_type = "ICP";
 						transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
+					}
+					else{
+						scan_match_type = "NDT";
+						transform = getTransformWithNDT(mapCloud, cloudFiltered, pose, 50);
 					}
 				}
 				
