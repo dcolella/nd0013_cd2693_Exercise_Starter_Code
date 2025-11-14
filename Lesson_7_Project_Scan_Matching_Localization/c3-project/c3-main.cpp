@@ -371,7 +371,7 @@ int main(){
 			viewer->removeShape("speed");
 			viewer->addText("Speed: "+to_string(vehicle_speed)+" m/s", 200, 250, 32, 1.0, 1.0, 1.0, "speed",0);
 			viewer->removeShape("scanMatch");
-			viewer->addText("scanMatch: "+to_string(vehicle_speed)+" m/s", 200, 250, 32, 1.0, 1.0, 1.0, "speed",0);
+			viewer->addText("scanMatch: "+ scan_match_type , 200, 50, 32, 1.0, 1.0, 1.0, "scanMatch",0);
 
 			if(maxError > 1.2 || distDriven >= 170.0 ){
 				viewer->removeShape("eval");
