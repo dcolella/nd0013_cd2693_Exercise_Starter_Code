@@ -39,6 +39,7 @@ using namespace std;
 #include <ctime>
 #include <iomanip>
 
+using namespace pcl::registration;
 
 PointCloudT pclCloud;
 cc::Vehicle::Control control;
@@ -116,7 +117,6 @@ Eigen::Matrix4d getTransformWithICP(PointCloudT::Ptr target, PointCloudT::Ptr so
   	PointCloudT::Ptr transformSource (new PointCloudT); 
   	pcl::transformPointCloud (*source, *transformSource, initTransform);
 
-	using namespace pcl::registration;
 	boost::shared_ptr<CorrespondenceRejectorDistance> rej(new CorrespondenceRejectorDistance());
 	rej->setMaximumDistance(0.6);
   		
