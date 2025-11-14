@@ -185,7 +185,7 @@ Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::Poi
 
 int main(){
 
-	ScanMatchAlgo matching = Icp;
+	ScanMatchAlgo matching = Hybrid;
 
 	if( matching == Ndt)
 		cout << "Selected NDT Transform." <<  endl;
