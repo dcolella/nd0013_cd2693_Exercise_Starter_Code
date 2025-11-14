@@ -180,7 +180,7 @@ Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::Poi
 
 	Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 
-	return NDT(ndt, cloudFiltered, pose, 3);
+	return NDT(ndt, cloudFiltered, pose, iterations);
 
 }
 
@@ -241,13 +241,13 @@ int main(){
 				}
 			}
 			if(pclCloud.points.size() > 15000){ // CANDO: Can modify this value to get different scan resolutions
-				lastScanTime = std::chrono::system_clock::now();
+				//lastScanTime = std::chrono::system_clock::now();
 				*scanCloud = pclCloud;
 				new_scan = false;
-				std::time_t now_time = std::chrono::system_clock::to_time_t(lastScanTime);
-				std::tm* local_time = std::localtime(&now_time);
+				//std::time_t now_time = std::chrono::system_clock::to_time_t(lastScanTime);
+				//std::tm* local_time = std::localtime(&now_time);
 
-				cout << "New scan completed at " << std::put_time(local_time, "%Y-%m-%d %H:%M:%S") <<  endl;
+				//cout << "New scan completed at " << std::put_time(local_time, "%Y-%m-%d %H:%M:%S") <<  endl;
 			}
 		}
 	});
@@ -301,31 +301,22 @@ int main(){
 			// TODO: Find pose transform by using ICP or NDT matching
 			//pose = ....
 
-			// use ICP
-			//Eigen::Matrix4d transform = ICP(mapCloud, cloudFiltered, pose, 50); 
-
-			// use NDT
-			//Eigen::Matrix4d transform = getPoseEstimationWithNDT(mapCloud, cloudFiltered, pose, 50);
-
-
 			ScanMatchAlgo matching = Ndt;
 
 			Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 
 			if( matching != Off){
 				if( matching == Ndt)
+					cout << "Selected NDT Transform." <<  endl;
 					transform = getTransformWithNDT(mapCloud, cloudFiltered, pose, 50);
 				else if(matching == Icp)
+					cout << "Selected ICP Transform." <<  endl;
 					transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
 				
 				pose = getPose(transform);
 
 			}
 			
-			
-
-			//Pose getPoseEstimationWithNDT(PointCloudT::Ptr mapCloud, typename pcl::PointCloud<PointT>::Ptr cloudFiltered, Pose pose, int iterations){
-			//pose = getPoseEstimationWithNDT(mapCloud, cloudFiltered, pose, 50);
 
 			// TODO: Transform scan so it aligns with ego's actual pose and render that scan
 			PointCloudT::Ptr transformed_scan (new PointCloudT);
