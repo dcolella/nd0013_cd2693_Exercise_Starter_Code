@@ -306,12 +306,14 @@ int main(){
 			Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 
 			if( matching != Off){
-				if( matching == Ndt)
+				if( matching == Ndt){
 					cout << "Selected NDT Transform." <<  endl;
 					transform = getTransformWithNDT(mapCloud, cloudFiltered, pose, 50);
-				else if(matching == Icp)
+				}
+				else if(matching == Icp){
 					cout << "Selected ICP Transform." <<  endl;
 					transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
+				}
 				
 				pose = getPose(transform);
 
