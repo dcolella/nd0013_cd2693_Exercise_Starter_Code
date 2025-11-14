@@ -124,7 +124,7 @@ Eigen::Matrix4d getTransformWithICP(PointCloudT::Ptr target, PointCloudT::Ptr so
 	icp.setMaxCorrespondenceDistance (0.7);
 	icp.setTransformationEpsilon(1e-6);
 	icp.setEuclideanFitnessEpsilon(1e-6);
-	icp.addCorrespondenceRejector(rej);
+	
 	
 
   	PointCloudT::Ptr cloud_icp (new PointCloudT);  // ICP output point cloud
