@@ -106,7 +106,7 @@ void drawCar(Pose pose, int num, Color color, double alpha, pcl::visualization::
 
 enum ScanMatchAlgo{ Off, Icp, Ndt};
 
-Eigen::Matrix4d ICP(PointCloudT::Ptr target, PointCloudT::Ptr source, Pose startingPose, int iterations){
+Eigen::Matrix4d getTransformWithICP(PointCloudT::Ptr target, PointCloudT::Ptr source, Pose startingPose, int iterations){
 
 	// Defining a rotation matrix and translation vector
   	Eigen::Matrix4d transformation_matrix = Eigen::Matrix4d::Identity ();
@@ -168,7 +168,7 @@ Eigen::Matrix4d NDT(pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointX
 }
 
 
-Eigen::Matrix4d getPoseEstimationWithNDT(PointCloudT::Ptr mapCloud, typename pcl::PointCloud<PointT>::Ptr cloudFiltered, Pose pose, int iterations){
+Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::PointCloud<PointT>::Ptr cloudFiltered, Pose pose, int iterations){
 	pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> ndt;
 	// Setting minimum transformation difference for termination condition.
   	ndt.setTransformationEpsilon (.0001);
@@ -314,9 +314,9 @@ int main(){
 
 			if( matching != Off){
 				if( matching == Ndt)
-					transform = getPoseEstimationWithNDT(mapCloud, cloudFiltered, pose, 50);
+					transform = getTransformWithNDT(mapCloud, cloudFiltered, pose, 50);
 				else if(matching == Icp)
-					transform = ICP(mapCloud, cloudFiltered, pose, 50); 
+					transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
 				
 				pose = getPose(transform);
 
