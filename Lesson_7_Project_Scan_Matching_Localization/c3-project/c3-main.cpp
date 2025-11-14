@@ -352,6 +352,9 @@ int main(){
 			viewer->addText("Pose error: "+to_string(poseError)+" m", 200, 150, 32, 1.0, 1.0, 1.0, "derror",0);
 			viewer->removeShape("dist");
 			viewer->addText("Distance: "+to_string(distDriven)+" m", 200, 200, 32, 1.0, 1.0, 1.0, "dist",0);
+			viewer->removeShape("speed");
+			viewer->addText("Speed: "+to_string(vehicle_speed)+" m", 200, 250, 32, 1.0, 1.0, 1.0, "speed",0);
+			vehicle_speed
 
 			if(maxError > 1.2 || distDriven >= 170.0 ){
 				viewer->removeShape("eval");
