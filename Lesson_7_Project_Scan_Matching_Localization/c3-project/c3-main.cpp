@@ -307,8 +307,8 @@ int main(){
 			// TODO: (Filter scan using voxel filter)
 			pcl::VoxelGrid<PointT> vg;
 			vg.setInputCloud(scanCloud);
-			//double filterRes = 0.2;
-			double filterRes = (vehicle_speed > 2.0) ? 0.25 : 0.15;
+			double filterRes = 0.2;
+			//double filterRes = (vehicle_speed > 2.0) ? 0.25 : 0.15;
 			vg.setLeafSize(filterRes, filterRes, filterRes);
 			typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
 			vg.filter(*cloudFiltered);
@@ -331,7 +331,7 @@ int main(){
 					transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
 				}
 				else if(matching == SpeedAdapt){
-					if(vehicle_speed < 0.2){		
+					if(vehicle_speed < 3.0){		
 						scan_match_type = "ICP";
 						transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
 					}
