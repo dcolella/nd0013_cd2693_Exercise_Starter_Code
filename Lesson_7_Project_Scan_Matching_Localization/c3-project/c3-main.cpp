@@ -103,7 +103,7 @@ void drawCar(Pose pose, int num, Color color, double alpha, pcl::visualization::
 	renderBox(viewer, box, num, color, alpha);
 }
 
-enum ScanMatchAlgo{ Off, Icp, Ndt};
+enum ScanMatchAlgo{ Off, Icp, Ndt, Hybrid};
 
 Eigen::Matrix4d getTransformWithICP(PointCloudT::Ptr target, PointCloudT::Ptr source, Pose startingPose, int iterations){
 
@@ -184,6 +184,16 @@ Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::Poi
 }
 
 int main(){
+
+	ScanMatchAlgo matching = Icp;
+
+	if( matching == Ndt)
+		cout << "Selected NDT Transform." <<  endl;
+	else if (matching == Icp)
+		cout << "Selected ICP Transform." <<  endl;
+	else if (matching == Hybrid)
+		cout << "Selected Hybrid Transform." <<  endl;
+	 
 
 	auto client = cc::Client("localhost", 2000);
 	client.SetTimeout(2s);
@@ -288,6 +298,8 @@ int main(){
 		
 		carla::geom::Vector3D vel = vehicle->GetVelocity();
 		double vehicle_speed = std::sqrt(vel.x * vel.x + vel.y * vel.y + vel.z * vel.z);
+
+		cout << "Vehicle Speed: " << vehicle_speed <<  endl;
 		
 		if(!new_scan){
 			
@@ -304,17 +316,13 @@ int main(){
 			// TODO: Find pose transform by using ICP or NDT matching
 			//pose = ....
 
-			ScanMatchAlgo matching = Icp;
-
 			Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 
 			if( matching != Off){
 				if( matching == Ndt){
-					cout << "Selected NDT Transform." <<  endl;
 					transform = getTransformWithNDT(mapCloud, cloudFiltered, pose, 50);
 				}
 				else if(matching == Icp){
-					cout << "Selected ICP Transform." <<  endl;
 					transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
 				}
 				
