@@ -39,8 +39,6 @@ using namespace std;
 #include <ctime>
 #include <iomanip>
 
-using namespace pcl::registration;
-
 PointCloudT pclCloud;
 cc::Vehicle::Control control;
 std::chrono::time_point<std::chrono::system_clock> currentTime;
@@ -116,9 +114,6 @@ Eigen::Matrix4d getTransformWithICP(PointCloudT::Ptr target, PointCloudT::Ptr so
   	Eigen::Matrix4d initTransform = transform3D(startingPose.rotation.yaw, startingPose.rotation.pitch, startingPose.rotation.roll, startingPose.position.x, startingPose.position.y, startingPose.position.z);
   	PointCloudT::Ptr transformSource (new PointCloudT); 
   	pcl::transformPointCloud (*source, *transformSource, initTransform);
-
-	boost::shared_ptr<CorrespondenceRejectorDistance> rej(new CorrespondenceRejectorDistance());
-	rej->setMaximumDistance(0.6);
   		
 	pcl::console::TicToc time;
   	time.tic ();
