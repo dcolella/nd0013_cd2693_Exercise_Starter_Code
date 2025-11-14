@@ -331,7 +331,7 @@ int main(){
 					transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
 				}
 				else if(matching == SpeedAdapt){
-					if(vehicle_speed < 0.5){		
+					if(vehicle_speed < 0.4){		
 						scan_match_type = "ICP";
 						transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
 					}
