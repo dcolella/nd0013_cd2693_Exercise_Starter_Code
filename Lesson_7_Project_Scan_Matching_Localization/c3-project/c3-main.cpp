@@ -304,7 +304,7 @@ int main(){
 			// TODO: Find pose transform by using ICP or NDT matching
 			//pose = ....
 
-			ScanMatchAlgo matching = Ndt;
+			ScanMatchAlgo matching = Icp;
 
 			Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 
