@@ -346,7 +346,7 @@ int main(){
 					scan_match_type = "Interpolation";
 					Eigen::Matrix4d transformICP = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
 					Eigen::Matrix4d transformNDT = getTransformWithNDT(mapCloud, cloudFiltered, pose, 50);
-					w = 0.0;
+					double w = 0.0;
 					if(vehicle_speed < 0.4)
 						w = 0.8;
 					else
