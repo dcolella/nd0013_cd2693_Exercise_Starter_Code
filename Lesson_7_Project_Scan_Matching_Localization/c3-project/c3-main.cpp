@@ -103,7 +103,7 @@ void drawCar(Pose pose, int num, Color color, double alpha, pcl::visualization::
 	renderBox(viewer, box, num, color, alpha);
 }
 
-enum ScanMatchAlgo{ Off, Icp, Ndt, Hybrid};
+enum ScanMatchAlgo{ Off, Icp, Ndt, Hybrid, SpeedAdapt};
 
 Eigen::Matrix4d getTransformWithICP(PointCloudT::Ptr target, PointCloudT::Ptr source, Pose startingPose, int iterations){
 
@@ -185,7 +185,7 @@ Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::Poi
 
 int main(){
 
-	ScanMatchAlgo matching = Hybrid;
+	ScanMatchAlgo matching = SpeedAdapt;
 
 	if( matching == Ndt)
 		cout << "Selected NDT Transform." <<  endl;
@@ -327,7 +327,12 @@ int main(){
 					transform = getTransformWithNDT(mapCloud, cloudFiltered, pose, 50);
 					pose = getPose(transform);
 					transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
-
+				}
+				else if(matching == SpeedAdapt){
+					if(vehicle_speed < 1.0)		
+						transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
+					else
+						transform = getTransformWithNDT(mapCloud, cloudFiltered, pose, 50);
 				}
 				
 				pose = getPose(transform);
