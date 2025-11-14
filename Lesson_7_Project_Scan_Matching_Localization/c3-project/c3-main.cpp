@@ -193,6 +193,8 @@ int main(){
 		cout << "Selected ICP Transform." <<  endl;
 	else if (matching == Hybrid)
 		cout << "Selected Hybrid Transform." <<  endl;
+	else if (matching == SpeedAdapt)
+		cout << "Selected SpeedAdapt Transform." <<  endl;
 	 
 
 	auto client = cc::Client("localhost", 2000);
@@ -300,7 +302,7 @@ int main(){
 		double vehicle_speed = std::sqrt(vel.x * vel.x + vel.y * vel.y + vel.z * vel.z);
 		
 		if(!new_scan){
-			
+			std::string scan_match_type = "";
 			new_scan = true;
 			// TODO: (Filter scan using voxel filter)
 			pcl::VoxelGrid<PointT> vg;
@@ -329,10 +331,15 @@ int main(){
 					transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
 				}
 				else if(matching == SpeedAdapt){
-					if(vehicle_speed < 1.0)		
+					if(vehicle_speed < 0.3){		
+						scan_match_type = "ICP";
 						transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
-					else
+					}
+					else{
+						scan_match_type = "NDT";
 						transform = getTransformWithNDT(mapCloud, cloudFiltered, pose, 50);
+
+					}
 				}
 				
 				pose = getPose(transform);
@@ -363,6 +370,8 @@ int main(){
 			viewer->addText("Distance: "+to_string(distDriven)+" m", 200, 200, 32, 1.0, 1.0, 1.0, "dist",0);
 			viewer->removeShape("speed");
 			viewer->addText("Speed: "+to_string(vehicle_speed)+" m/s", 200, 250, 32, 1.0, 1.0, 1.0, "speed",0);
+			viewer->removeShape("scanMatch");
+			viewer->addText("scanMatch: "+to_string(vehicle_speed)+" m/s", 200, 250, 32, 1.0, 1.0, 1.0, "speed",0);
 
 			if(maxError > 1.2 || distDriven >= 170.0 ){
 				viewer->removeShape("eval");
