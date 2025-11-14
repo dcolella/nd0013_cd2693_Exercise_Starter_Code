@@ -286,13 +286,17 @@ int main(){
 
   		viewer->spinOnce ();
 		
+		carla::geom::Vector3D vel = vehicle->GetVelocity();
+		double vehicle_speed = std::sqrt(vel.x * vel.x + vel.y * vel.y + vel.z * vel.z);
+		
 		if(!new_scan){
 			
 			new_scan = true;
 			// TODO: (Filter scan using voxel filter)
 			pcl::VoxelGrid<PointT> vg;
 			vg.setInputCloud(scanCloud);
-			double filterRes = 0.2;
+			//double filterRes = 0.2;
+			double filterRes = (vehicle_speed > 2.0) ? 0.25 : 0.15;
 			vg.setLeafSize(filterRes, filterRes, filterRes);
 			typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
 			vg.filter(*cloudFiltered);
