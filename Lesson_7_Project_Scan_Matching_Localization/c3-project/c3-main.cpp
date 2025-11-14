@@ -316,7 +316,7 @@ int main(){
 			// TODO: Find pose transform by using ICP or NDT matching
 			//pose = ....
 
-			Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
+			Eigen::Matrix4d transform; // = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 
 			if( matching != Off){
 				if( matching == Ndt){
@@ -376,10 +376,10 @@ int main(){
 			if(maxError > 1.2 || distDriven >= 170.0 ){
 				viewer->removeShape("eval");
 			if(maxError > 1.2){
-				viewer->addText("Try Again", 200, 50, 32, 1.0, 0.0, 0.0, "eval",0);
+				viewer->addText("Try Again", 200, 20, 32, 1.0, 0.0, 0.0, "eval",0);
 			}
 			else{
-				viewer->addText("Passed!", 200, 50, 32, 0.0, 1.0, 0.0, "eval",0);
+				viewer->addText("Passed!", 200, 20, 32, 0.0, 1.0, 0.0, "eval",0);
 			}
 		}
 
