@@ -6,3 +6,5 @@ CMakeCache.txt
 cmake_install.cmake
 Lesson_6_Utilizing_Scan_Matching/Exercise-Mapping/libcarla-install/
 Lesson_7_Project_Scan_Matching_Localization/c3-project/libcarla-install/
+.cache
+build
