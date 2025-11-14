@@ -298,8 +298,6 @@ int main(){
 		
 		carla::geom::Vector3D vel = vehicle->GetVelocity();
 		double vehicle_speed = std::sqrt(vel.x * vel.x + vel.y * vel.y + vel.z * vel.z);
-
-		cout << "Vehicle Speed: " << vehicle_speed <<  endl;
 		
 		if(!new_scan){
 			
@@ -324,6 +322,12 @@ int main(){
 				}
 				else if(matching == Icp){
 					transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
+				}
+				else if(matching == Hybrid){
+					transform = getTransformWithNDT(mapCloud, cloudFiltered, pose, 50);
+					pose = getPose(transform);
+					transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
+
 				}
 				
 				pose = getPose(transform);
