@@ -105,13 +105,13 @@ void drawCar(Pose pose, int num, Color color, double alpha, pcl::visualization::
 
 enum ScanMatchAlgo{ Off, Icp, Ndt, Hybrid, SpeedAdapt, Interpolation};
 
-Eigen::Matrix4d getTransformWithICP(PointCloudT::Ptr target, PointCloudT::Ptr source, Pose startingPose, int iterations){
+Eigen::Matrix4d getTransformWithICP(PointCloudT::Ptr target, PointCloudT::Ptr source, Eigen::Matrix4d initTransform, int iterations){
 
 	// Defining a rotation matrix and translation vector
   	Eigen::Matrix4d transformation_matrix = Eigen::Matrix4d::Identity ();
 
   	// align source with starting pose
-  	Eigen::Matrix4d initTransform = transform3D(startingPose.rotation.yaw, startingPose.rotation.pitch, startingPose.rotation.roll, startingPose.position.x, startingPose.position.y, startingPose.position.z);
+  	//Eigen::Matrix4d initTransform = transform3D(startingPose.rotation.yaw, startingPose.rotation.pitch, startingPose.rotation.roll, startingPose.position.x, startingPose.position.y, startingPose.position.z);
   	PointCloudT::Ptr transformSource (new PointCloudT); 
   	pcl::transformPointCloud (*source, *transformSource, initTransform);
   		
@@ -273,7 +273,7 @@ Pose predictPoseFromSpeedAndYawRate(const Pose &current, double speed, double ya
 
 int main(){
 
-	ScanMatchAlgo matching = Ndt;
+	ScanMatchAlgo matching = Hybrid;
 
 	if( matching == Ndt)
 		cout << "Selected NDT Transform." <<  endl;
@@ -424,37 +424,37 @@ int main(){
 			// TODO: Find pose transform by using ICP or NDT matching
 			//pose = ....
 
-			Eigen::Matrix4d transform; // = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
+			Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 
 			if( matching != Off){
 				if( matching == Ndt){
 					scan_match_type = "NDT";
-					transform = getTransformWithNDT(mapCloud, cloudFiltered, pose, 50);
+					transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 50);
 				}
 				else if(matching == Icp){
 					scan_match_type = "ICP";
-					transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
+					transform = getTransformWithICP(mapCloud, cloudFiltered, transform, 50); 
 				}
 				else if(matching == Hybrid){
 					scan_match_type = "Hybrid";
-					transform = getTransformWithNDT(mapCloud, cloudFiltered, pose, 50);
+					transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 50);
 					pose = getPose(transform);
-					transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
+					transform = getTransformWithICP(mapCloud, cloudFiltered, transform, 50); 
 				}
 				else if(matching == SpeedAdapt){
 					if(vehicle_speed < 0.4){		
 						scan_match_type = "SpeedAdapt:ICP";
-						transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
+						transform = getTransformWithICP(mapCloud, cloudFiltered, transform, 50); 
 					}
 					else{
 						scan_match_type = "SpeedAdapt:NDT";
-						transform = getTransformWithNDT(mapCloud, cloudFiltered, pose, 50);
+						transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 50);
 					}
 				}
 				else if(matching == Interpolation){
 					scan_match_type = "Interpolation";
-					Eigen::Matrix4d transformICP = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
-					Eigen::Matrix4d transformNDT = getTransformWithNDT(mapCloud, cloudFiltered, pose, 50);
+					Eigen::Matrix4d transformICP = getTransformWithICP(mapCloud, cloudFiltered, transform, 50); 
+					Eigen::Matrix4d transformNDT = getTransformWithNDT(mapCloud, cloudFiltered, transform, 50);
 					double w = 0.0;
 					if(vehicle_speed < 0.4)
 						w = 0.8;
