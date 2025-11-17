@@ -237,7 +237,7 @@ Pose predictPoseFromSpeedAndYawRate(const Pose &current, double speed, double ya
 
 int main(){
 
-	ScanMatchAlgo matching = Hybrid;
+	ScanMatchAlgo matching = SpeedAdapt;
 
 	if( matching == Ndt)
 		cout << "Selected NDT Transform." <<  endl;
@@ -420,7 +420,7 @@ int main(){
 					Eigen::Matrix4d transformICP = getTransformWithICP(mapCloud, cloudFiltered, transform, 50); 
 					Eigen::Matrix4d transformNDT = getTransformWithNDT(mapCloud, cloudFiltered, transform, 50);
 					double w = 0.0;
-					if(vehicle_speed < 0.4)
+					if(vehicle_speed < 0.5)
 						w = 0.8;
 					else
 					 	w = 0.2;
