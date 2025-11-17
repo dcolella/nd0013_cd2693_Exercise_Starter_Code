@@ -199,6 +199,13 @@ double getVehicleYawRateRadS(const carla::SharedPtr<carla::client::Vehicle>& veh
 	return ang.z * M_PI / 180.0;
 }
 
+void printTime(std::chrono::time_point<std::chrono::steady_clock> time, std::string label){
+	auto dur = time.time_since_epoch(); // duration since clock’s epoch
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
+
+	std::cout  label << ": " << ms << " ms since steady_clock epoch\n";
+}
+
 Pose predictPoseFromSpeedAndYawRate(const Pose &current, double speed, double yaw_rate, std::chrono::time_point<std::chrono::steady_clock> &lastPredictedPoseTime){
 
 	auto now = std::chrono::steady_clock::now();
@@ -281,10 +288,7 @@ int main(){
 	Pose pose(Point(0,0,0), Rotate(0,0,0));
 	std::chrono::time_point<std::chrono::steady_clock> pose_time = std::chrono::steady_clock::now();
 
-	auto dur = pose_time.time_since_epoch(); // duration since clock’s epoch
-    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
-
-	std::cout << "pose_time: " << ms << " ms since steady_clock epoch\n";
+	printTime(pose_time, "pose_time");
 
 	// Load map
 	PointCloudT::Ptr mapCloud(new PointCloudT);
@@ -356,6 +360,8 @@ int main(){
 		double vehicle_yaw_rate = getVehicleYawRateRadS(vehicle);
 
 		pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, pose_time);
+
+		printTime(pose_time, "pose_time");
 
 		
 		if(!new_scan){
