@@ -237,7 +237,7 @@ Pose predictPoseFromSpeedAndYawRate(const Pose &current, double speed, double ya
 
 int main(){
 
-	ScanMatchAlgo matching = SpeedAdapt;
+	ScanMatchAlgo matching = Icp;
 
 	if( matching == Ndt)
 		cout << "Selected NDT Transform." <<  endl;
