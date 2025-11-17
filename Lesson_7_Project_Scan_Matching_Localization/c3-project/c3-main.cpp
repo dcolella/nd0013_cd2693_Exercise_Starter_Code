@@ -144,42 +144,6 @@ Eigen::Matrix4d getTransformWithICP(PointCloudT::Ptr target, PointCloudT::Ptr so
 
 }
 
-/*
-Eigen::Matrix4d NDT(pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> ndt, PointCloudT::Ptr source, Eigen::Matrix4d init_guess, int iterations){
-	
-	pcl::console::TicToc time;
-	time.tic ();
-
-	//Eigen::Matrix4f init_guess = transform3D(startingPose.rotation.yaw, startingPose.rotation.pitch, startingPose.rotation.roll, startingPose.position.x, startingPose.position.y, startingPose.position.z).cast<float>();
-
-  	// Setting max number of registration iterations.
-  	//ndt.setMaximumIterations (iterations);
-	//ndt.setInputSource (source);
-  	
-	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ndt (new pcl::PointCloud<pcl::PointXYZ>);
-  	ndt.align (*cloud_ndt, init_guess);
-
-	//cout << "Normal Distributions Transform has converged:" << ndt.hasConverged () << " score: " << ndt.getFitnessScore () <<  " time: " << time.toc() <<  " ms" << endl;
-
-
-	Eigen::Matrix4d transformation_matrix;
-
-	if (ndt.hasConverged()) {
-		transformation_matrix = ndt.getFinalTransformation ().cast<double>();
-    }
-	else {
-		std::cout << "[WARNING] NDT did not converge" << std::endl;
-        return init_guess.cast<double>();
-	}
-
-	
-
-	return transformation_matrix;
-
-}
-
-*/
-
 
 Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::PointCloud<PointT>::Ptr cloudFiltered, Eigen::Matrix4d init_guess , int iterations){
 	pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> ndt;
@@ -438,7 +402,7 @@ int main(){
 				else if(matching == Hybrid){
 					scan_match_type = "Hybrid";
 					transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 50);
-					pose = getPose(transform);
+					//pose = getPose(transform);
 					transform = getTransformWithICP(mapCloud, cloudFiltered, transform, 50); 
 				}
 				else if(matching == SpeedAdapt){
