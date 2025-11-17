@@ -365,11 +365,9 @@ int main(){
 		printPosePosition(truePose, "truePose.");
 		printPosePosition(pose, "currentEstimatedPosition.");
 
-		if(vehicle_speed > 0.5) {
-			pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, pose_time);
-			printPosePosition(pose, "predictedWithMotionModel.");
-		}
-
+		pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, pose_time);
+		printPosePosition(pose, "predictedWithMotionModel.");
+		
 		printTime(pose_time, "pose_time");
 
 		
