@@ -237,15 +237,13 @@ Pose predictPoseFromSpeedAndYawRate(const Pose &current, double speed, double ya
     predicted.rotation.pitch = pitch;
     predicted.rotation.roll  = roll;
 
-	printPosePosition(predicted, "predicted.");
-
     return predicted;
 
 }
 
 int main(){
 
-	ScanMatchAlgo matching = SpeedAdapt;
+	ScanMatchAlgo matching = Icp;
 
 	if( matching == Ndt)
 		cout << "Selected NDT Transform." <<  endl;
@@ -371,8 +369,12 @@ int main(){
 		std::cout << "yaw rate:" << vehicle_yaw_rate << endl;
 
 		printPosePosition(truePose, "truePose.");
+		printPosePosition(pose, "currentEstimatedPosition.");
 
-		pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, pose_time);
+		if(vehicle_speed > 0.5) {
+			pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, pose_time);
+			printPosePosition(pose, "predictedWithMotionModel.");
+		}
 
 		printTime(pose_time, "pose_time");
 
@@ -411,11 +413,11 @@ int main(){
 				}
 				else if(matching == SpeedAdapt){
 					if(vehicle_speed < 0.4){		
-						scan_match_type = "ICP";
+						scan_match_type = "SpeedAdapt:ICP";
 						transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
 					}
 					else{
-						scan_match_type = "NDT";
+						scan_match_type = "SpeedAdapt:NDT";
 						transform = getTransformWithNDT(mapCloud, cloudFiltered, pose, 50);
 					}
 				}
