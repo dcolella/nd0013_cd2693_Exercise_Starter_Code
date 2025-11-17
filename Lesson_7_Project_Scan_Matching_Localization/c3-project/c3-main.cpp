@@ -281,6 +281,11 @@ int main(){
 	Pose pose(Point(0,0,0), Rotate(0,0,0));
 	std::chrono::time_point<std::chrono::steady_clock> pose_time = std::chrono::steady_clock::now();
 
+	auto dur = pose_time.time_since_epoch(); // duration since clock’s epoch
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
+
+	std::cout << "pose_time: " << ms << " ms since steady_clock epoch\n";
+
 	// Load map
 	PointCloudT::Ptr mapCloud(new PointCloudT);
   	pcl::io::loadPCDFile("map.pcd", *mapCloud);
@@ -372,9 +377,11 @@ int main(){
 
 			if( matching != Off){
 				if( matching == Ndt){
+					scan_match_type = "NDT";
 					transform = getTransformWithNDT(mapCloud, cloudFiltered, pose, 50);
 				}
 				else if(matching == Icp){
+					scan_match_type = "ICP";
 					transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
 				}
 				else if(matching == Hybrid){
