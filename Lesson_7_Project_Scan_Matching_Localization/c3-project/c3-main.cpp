@@ -207,9 +207,9 @@ void printTime(std::chrono::time_point<std::chrono::steady_clock> time, std::str
 }
 
 void printPosePosition(Pose pose, std::string label){
-	std::cout << label << "position.x:" << predicted.position.x << endl;
-	std::cout << label << "position.y:" << predicted.position.y << endl;
-	std::cout << label << "position.z:" << predicted.position.z << endl;
+	std::cout << label << "position.x:" << pose.position.x << endl;
+	std::cout << label << "position.y:" << pose.position.y << endl;
+	std::cout << label << "position.z:" << pose.position.z << endl;
 }
 
 Pose predictPoseFromSpeedAndYawRate(const Pose &current, double speed, double yaw_rate, std::chrono::time_point<std::chrono::steady_clock> &lastPredictedPoseTime){
