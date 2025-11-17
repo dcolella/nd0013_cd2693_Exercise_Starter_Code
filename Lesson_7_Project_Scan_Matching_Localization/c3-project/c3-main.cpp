@@ -210,7 +210,7 @@ double getVehicleYawRateRadS(const carla::SharedPtr<carla::client::Vehicle>& veh
 Pose predictPoseFromSpeedAndYawRate(const Pose &current, double speed, double yaw_rate, std::chrono::time_point<std::chrono::steady_clock> &lastPredictedPoseTime){
 
 	auto now = std::chrono::steady_clock::now();
-	double dt = std::chrono::duration<double>(now - lastTime).count();
+	double dt = std::chrono::duration<double>(now - lastPredictedPoseTime).count();
 	lastPredictedPoseTime = now;
 
 	Pose predicted = current;
@@ -287,7 +287,7 @@ int main(){
 
 	auto vehicle = boost::static_pointer_cast<cc::Vehicle>(ego_actor);
 	Pose pose(Point(0,0,0), Rotate(0,0,0));
-	pose_time = std::chrono::steady_clock::now();
+	std::chrono::time_point<std::chrono::steady_clock> pose_time = std::chrono::steady_clock::now();
 
 	// Load map
 	PointCloudT::Ptr mapCloud(new PointCloudT);
