@@ -194,7 +194,7 @@ Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::Poi
 	ndt.setInputSource (cloudFiltered);
 
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ndt (new pcl::PointCloud<pcl::PointXYZ>);
-  	ndt.align (*cloud_ndt, init_guess);
+  	ndt.align (*cloud_ndt, init_guess.cast<float>());
 	//Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 
 	Eigen::Matrix4d transformation_matrix;
