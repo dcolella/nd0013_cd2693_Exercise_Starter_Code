@@ -183,9 +183,62 @@ Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::Poi
 
 }
 
+/**
+	Get current vehicle Speed in Meter per Seconds.
+*/
+double getVehicleSpeedMs(const carla::SharedPtr<carla::client::Vehicle>& vehicle){
+	carla::Transform transform = vehicle->GetTransform();
+	carla::Rotation rot = transform.rotation;
+
+	double yaw rot.yaw * M_PI / 180.0;
+
+	carla::Vector3D vel = vehicle->GetVelocity();
+
+
+	return vel.x * std::cos(yaw) + vel.y * std::sin(yaw);
+
+}
+
+/**
+	Get current vehicle Yaw rate in Radiant per Second.
+*/
+double getVehicleYawRateRadS(const carla::SharedPtr<carla::client::Vehicle>& vehicle){
+	carla::geom::Vector3D ang = vehicle->GetAngularVelocity();
+	return ang.z * M_PI / 180.0;
+}
+
+Pose predictPoseFromSpeedAndYawRate(const Pose &current, double speed, double yaw_rate, std::chrono::time_point<std::chrono::steady_clock> &lastPredictedPoseTime){
+
+	auto now = std::chrono::steady_clock::now();
+	double dt = std::chrono::duration<double>(now - lastTime).count();
+	lastPredictedPoseTime = now;
+
+	Pose predicted = current;
+
+    double yaw   = current.rotation.yaw;
+    double pitch = current.rotation.pitch;   // not used
+    double roll  = current.rotation.roll;    // not used
+
+    // ---- Predict orientation ----
+    double newYaw = yaw + yaw_rate * dt;
+
+    // ---- Predict translation ----
+    predicted.position.x += speed * std::cos(newYaw) * dt;
+    predicted.position.y += speed * std::sin(newYaw) * dt;
+    predicted.position.z  = current.position.z;   // ignore Z motion for cars
+
+    // ---- Store updated rotation ----
+    predicted.rotation.yaw   = newYaw;
+    predicted.rotation.pitch = pitch;
+    predicted.rotation.roll  = roll;
+
+    return predicted;
+
+}
+
 int main(){
 
-	ScanMatchAlgo matching = Interpolation;
+	ScanMatchAlgo matching = Icp;
 
 	if( matching == Ndt)
 		cout << "Selected NDT Transform." <<  endl;
@@ -234,6 +287,7 @@ int main(){
 
 	auto vehicle = boost::static_pointer_cast<cc::Vehicle>(ego_actor);
 	Pose pose(Point(0,0,0), Rotate(0,0,0));
+	pose_time = std::chrono::steady_clock::now();
 
 	// Load map
 	PointCloudT::Ptr mapCloud(new PointCloudT);
@@ -300,8 +354,12 @@ int main(){
 
   		viewer->spinOnce ();
 		
-		carla::geom::Vector3D vel = vehicle->GetVelocity();
-		double vehicle_speed = std::sqrt(vel.x * vel.x + vel.y * vel.y + vel.z * vel.z);
+		//carla::geom::Vector3D vel = vehicle->GetVelocity();
+		double vehicle_speed = getVehicleSpeedMs(vehicle);
+		double vehicle_yaw_rate = getVehicleYawRateRadS(vehicle);
+
+		pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, pose_time);
+
 		
 		if(!new_scan){
 			std::string scan_match_type = "";
