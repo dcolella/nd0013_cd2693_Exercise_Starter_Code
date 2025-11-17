@@ -206,6 +206,12 @@ void printTime(std::chrono::time_point<std::chrono::steady_clock> time, std::str
 	std::cout << label << ": " << ms << " ms since steady_clock epoch\n";
 }
 
+void printPosePosition(Pose pose, std::string label){
+	std::cout << label << "position.x:" << predicted.position.x << endl;
+	std::cout << label << "position.y:" << predicted.position.y << endl;
+	std::cout << label << "position.z:" << predicted.position.z << endl;
+}
+
 Pose predictPoseFromSpeedAndYawRate(const Pose &current, double speed, double yaw_rate, std::chrono::time_point<std::chrono::steady_clock> &lastPredictedPoseTime){
 
 	auto now = std::chrono::steady_clock::now();
@@ -230,6 +236,8 @@ Pose predictPoseFromSpeedAndYawRate(const Pose &current, double speed, double ya
     predicted.rotation.yaw   = newYaw;
     predicted.rotation.pitch = pitch;
     predicted.rotation.roll  = roll;
+
+	printPosePosition(predicted, "predicted.");
 
     return predicted;
 
@@ -432,6 +440,8 @@ int main(){
 
 			viewer->removeAllShapes();
 			drawCar(pose, 1,  Color(0,1,0), 0.35, viewer);
+
+			printPosePosition(truePose, "truePose.");
           
           	double poseError = sqrt( (truePose.position.x - pose.position.x) * (truePose.position.x - pose.position.x) + (truePose.position.y - pose.position.y) * (truePose.position.y - pose.position.y) );
 			if(poseError > maxError)
