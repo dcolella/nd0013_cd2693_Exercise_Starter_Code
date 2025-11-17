@@ -245,7 +245,7 @@ Pose predictPoseFromSpeedAndYawRate(const Pose &current, double speed, double ya
 
 int main(){
 
-	ScanMatchAlgo matching = Hybrid;
+	ScanMatchAlgo matching = Interpolation;
 
 	if( matching == Ndt)
 		cout << "Selected NDT Transform." <<  endl;
@@ -404,6 +404,7 @@ int main(){
 					transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
 				}
 				else if(matching == Hybrid){
+					scan_match_type = "Hybrid";
 					transform = getTransformWithNDT(mapCloud, cloudFiltered, pose, 50);
 					pose = getPose(transform);
 					transform = getTransformWithICP(mapCloud, cloudFiltered, pose, 50); 
