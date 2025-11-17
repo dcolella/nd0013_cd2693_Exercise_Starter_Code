@@ -168,7 +168,7 @@ Eigen::Matrix4d NDT(pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointX
     }
 	else {
 		std::cout << "[WARNING] NDT did not converge" << std::endl;
-        transformation_matrix = init_guess.cast<double>();
+        transformation_matrix = init_guess;
 	}
 
 	
