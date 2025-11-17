@@ -187,7 +187,7 @@ Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::Poi
 	Get current vehicle Speed in Meter per Seconds.
 */
 double getVehicleSpeedMs(const carla::SharedPtr<carla::client::Vehicle>& vehicle){
-	cg::Transform transform transform = vehicle->GetTransform();
+	cg::Transform transform  = vehicle->GetTransform();
 	cg::Rotation rot = transform.rotation;
 
 	double yaw rot.yaw * M_PI / 180.0;
