@@ -188,7 +188,7 @@ Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::Poi
 */
 double getVehicleSpeedMs(const carla::SharedPtr<carla::client::Vehicle>& vehicle){
 	carla::geom::Vector3D vel = vehicle->GetVelocity();
-	return std::sqrt(vel.x * vel.x + vel.y * vel.y);
+	return std::sqrt(vel.x * vel.x + vel.y * vel.y + vel.z * vel.z);
 }
 
 /**
