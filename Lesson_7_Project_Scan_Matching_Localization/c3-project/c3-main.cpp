@@ -144,16 +144,17 @@ Eigen::Matrix4d getTransformWithICP(PointCloudT::Ptr target, PointCloudT::Ptr so
 
 }
 
-Eigen::Matrix4d NDT(pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> ndt, PointCloudT::Ptr source, Pose startingPose, int iterations){
+/*
+Eigen::Matrix4d NDT(pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> ndt, PointCloudT::Ptr source, Eigen::Matrix4d init_guess, int iterations){
 	
 	pcl::console::TicToc time;
 	time.tic ();
 
-	Eigen::Matrix4f init_guess = transform3D(startingPose.rotation.yaw, startingPose.rotation.pitch, startingPose.rotation.roll, startingPose.position.x, startingPose.position.y, startingPose.position.z).cast<float>();
+	//Eigen::Matrix4f init_guess = transform3D(startingPose.rotation.yaw, startingPose.rotation.pitch, startingPose.rotation.roll, startingPose.position.x, startingPose.position.y, startingPose.position.z).cast<float>();
 
   	// Setting max number of registration iterations.
-  	ndt.setMaximumIterations (iterations);
-	ndt.setInputSource (source);
+  	//ndt.setMaximumIterations (iterations);
+	//ndt.setInputSource (source);
   	
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ndt (new pcl::PointCloud<pcl::PointXYZ>);
   	ndt.align (*cloud_ndt, init_guess);
@@ -177,8 +178,10 @@ Eigen::Matrix4d NDT(pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointX
 
 }
 
+*/
 
-Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::PointCloud<PointT>::Ptr cloudFiltered, Pose pose, int iterations){
+
+Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::PointCloud<PointT>::Ptr cloudFiltered, Eigen::Matrix4d init_guess , int iterations){
 	pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> ndt;
 	// Setting minimum transformation difference for termination condition.
   	ndt.setTransformationEpsilon (.0001);
@@ -187,10 +190,26 @@ Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::Poi
   	//Setting Resolution of NDT grid structure (VoxelGridCovariance).
   	ndt.setResolution (1);
   	ndt.setInputTarget (mapCloud);
+	ndt.setMaximumIterations (iterations);
+	ndt.setInputSource (cloudFiltered);
 
-	Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ndt (new pcl::PointCloud<pcl::PointXYZ>);
+  	ndt.align (*cloud_ndt, init_guess);
+	//Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 
-	return NDT(ndt, cloudFiltered, pose, iterations);
+	Eigen::Matrix4d transformation_matrix;
+
+	if (ndt.hasConverged()) {
+		transformation_matrix = ndt.getFinalTransformation ().cast<double>();
+    }
+	else {
+		std::cout << "[WARNING] NDT did not converge" << std::endl;
+        return init_guess.cast<double>();
+	}
+
+	
+
+	return transformation_matrix;
 
 }
 
