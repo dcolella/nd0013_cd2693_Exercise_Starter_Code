@@ -149,7 +149,7 @@ Eigen::Matrix4d NDT(pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointX
 	pcl::console::TicToc time;
 	time.tic ();
 
-	Eigen::Matrix4f init_guess = transform3D(startingPose.rotation.yaw, startingPose.rotation.pitch, startingPose.rotation.roll, startingPose.position.x, startingPose.position.y, startingPose.position.z).cast<float>();
+	Eigen::Matrix4d init_guess = transform3D(startingPose.rotation.yaw, startingPose.rotation.pitch, startingPose.rotation.roll, startingPose.position.x, startingPose.position.y, startingPose.position.z);
 
   	// Setting max number of registration iterations.
   	ndt.setMaximumIterations (iterations);
@@ -164,7 +164,7 @@ Eigen::Matrix4d NDT(pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointX
 	Eigen::Matrix4d transformation_matrix;
 
 	if (ndt.hasConverged()) {
-		transformation_matrix = ndt.getFinalTransformation ().cast<double>();
+		transformation_matrix = ndt.getFinalTransformation ();
     }
 	else {
 		std::cout << "[WARNING] NDT did not converge" << std::endl;
