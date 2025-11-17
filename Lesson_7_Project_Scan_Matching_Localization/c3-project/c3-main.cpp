@@ -367,6 +367,8 @@ int main(){
 		double vehicle_speed = getVehicleSpeedMs(vehicle);
 		double vehicle_yaw_rate = getVehicleYawRateRadS(vehicle);
 
+		printPosePosition(truePose, "truePose.");
+		
 		pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, pose_time);
 
 		printTime(pose_time, "pose_time");
@@ -440,8 +442,6 @@ int main(){
 
 			viewer->removeAllShapes();
 			drawCar(pose, 1,  Color(0,1,0), 0.35, viewer);
-
-			printPosePosition(truePose, "truePose.");
           
           	double poseError = sqrt( (truePose.position.x - pose.position.x) * (truePose.position.x - pose.position.x) + (truePose.position.y - pose.position.y) * (truePose.position.y - pose.position.y) );
 			if(poseError > maxError)
