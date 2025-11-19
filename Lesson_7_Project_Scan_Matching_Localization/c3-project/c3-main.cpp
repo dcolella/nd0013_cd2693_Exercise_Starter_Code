@@ -201,6 +201,7 @@ int main(){
 			new_scan = true;
 			// TODO: (Filter scan using voxel filter)
 
+			Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 			// TODO: Find pose transform by using ICP or NDT matching
 			//pose = ....
 
