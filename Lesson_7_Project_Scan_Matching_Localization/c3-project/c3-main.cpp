@@ -288,7 +288,7 @@ int main(){
 					pclCloud.points.push_back(PointT(detection.x, detection.y, detection.z));
 				}
 			}
-			if(pclCloud.points.size() > 30000){ // CANDO: Can modify this value to get different scan resolutions
+			if(pclCloud.points.size() > 500000){ // CANDO: Can modify this value to get different scan resolutions
 				lastScanTime = std::chrono::system_clock::now();
 				*scanCloud = pclCloud;
 				new_scan = false;
@@ -331,7 +331,7 @@ int main(){
 
   		viewer->spinOnce ();
 
-		/*
+		
 		double vehicle_speed = getVehicleSpeedMs(vehicle);
 		double vehicle_yaw_rate = getVehicleYawRateRadS(vehicle);
 
@@ -346,7 +346,7 @@ int main(){
 		
 		printTime(pose_time, "pose_time");
 		
-		*/
+		
 		if(!new_scan){
 			
 			new_scan = true;
