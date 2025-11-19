@@ -10,6 +10,12 @@
 
 #include <carla/client/Vehicle.h>
 
+#include <pcl/common/transforms.h>   // for pcl::transformPointCloud
+#include <pcl/point_types.h>         // for pcl::PointXYZ, etc.
+#include <Eigen/Dense>               // for Eigen::Matrix4f transform
+
+
+
 //pcl code
 //#include "render/render.h"
 
