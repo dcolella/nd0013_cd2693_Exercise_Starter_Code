@@ -251,7 +251,7 @@ int main(){
     lidar_bp.SetAttribute("channels", "32");
     lidar_bp.SetAttribute("range", "30");
 	lidar_bp.SetAttribute("rotation_frequency", "60");
-	lidar_bp.SetAttribute("points_per_second", "1000000");
+	lidar_bp.SetAttribute("points_per_second", "500000");
 
 	auto user_offset = cg::Location(0, 0, 0);
 	auto lidar_transform = cg::Transform(cg::Location(-0.5, 0, 1.8) + user_offset);
@@ -288,7 +288,7 @@ int main(){
 					pclCloud.points.push_back(PointT(detection.x, detection.y, detection.z));
 				}
 			}
-			if(pclCloud.points.size() > 15000){ // CANDO: Can modify this value to get different scan resolutions
+			if(pclCloud.points.size() > 30000){ // CANDO: Can modify this value to get different scan resolutions
 				lastScanTime = std::chrono::system_clock::now();
 				*scanCloud = pclCloud;
 				new_scan = false;
