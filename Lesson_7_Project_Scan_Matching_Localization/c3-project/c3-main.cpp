@@ -327,6 +327,20 @@ int main(){
 		}
 
   		viewer->spinOnce ();
+
+		double vehicle_speed = getVehicleSpeedMs(vehicle);
+		double vehicle_yaw_rate = getVehicleYawRateRadS(vehicle);
+
+		std::cout << "speed:" << vehicle_speed << endl;
+		std::cout << "yaw rate:" << vehicle_yaw_rate << endl;
+
+		printPosePosition(truePose, "truePose.");
+		printPosePosition(pose, "currentEstimatedPosition.");
+
+		pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, pose_time);
+		printPosePosition(pose, "predictedWithMotionModel.");
+		
+		printTime(pose_time, "pose_time");
 		
 		if(!new_scan){
 			
