@@ -331,6 +331,7 @@ int main(){
 
   		viewer->spinOnce ();
 
+		/*
 		double vehicle_speed = getVehicleSpeedMs(vehicle);
 		double vehicle_yaw_rate = getVehicleYawRateRadS(vehicle);
 
@@ -345,6 +346,7 @@ int main(){
 		
 		printTime(pose_time, "pose_time");
 		
+		*/
 		if(!new_scan){
 			
 			new_scan = true;
