@@ -266,6 +266,9 @@ int main(){
 
 	auto vehicle = boost::static_pointer_cast<cc::Vehicle>(ego_actor);
 	Pose pose(Point(0,0,0), Rotate(0,0,0));
+	std::chrono::time_point<std::chrono::steady_clock> pose_time = std::chrono::steady_clock::now();
+
+	printTime(pose_time, "pose_time");
 
 	// Load map
 	PointCloudT::Ptr mapCloud(new PointCloudT);
