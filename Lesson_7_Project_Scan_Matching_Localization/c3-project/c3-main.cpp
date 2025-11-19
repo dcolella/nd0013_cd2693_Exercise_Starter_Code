@@ -98,6 +98,138 @@ void drawCar(Pose pose, int num, Color color, double alpha, pcl::visualization::
 	renderBox(viewer, box, num, color, alpha);
 }
 
+enum ScanMatchAlgo{ Off, Icp, Ndt, Hybrid, SpeedAdapt, Interpolation};
+
+Eigen::Matrix4d getTransformWithICP(PointCloudT::Ptr target, PointCloudT::Ptr source, Eigen::Matrix4d initTransform, int iterations){
+
+	// Defining a rotation matrix and translation vector
+  	Eigen::Matrix4d transformation_matrix = Eigen::Matrix4d::Identity ();
+
+  	// align source with starting pose
+  	//Eigen::Matrix4d initTransform = transform3D(startingPose.rotation.yaw, startingPose.rotation.pitch, startingPose.rotation.roll, startingPose.position.x, startingPose.position.y, startingPose.position.z);
+  	PointCloudT::Ptr transformSource (new PointCloudT); 
+  	pcl::transformPointCloud (*source, *transformSource, initTransform);
+  		
+	pcl::console::TicToc time;
+  	time.tic ();
+  	pcl::IterativeClosestPoint<PointT, PointT> icp;
+  	icp.setMaximumIterations (iterations);
+  	icp.setInputSource (transformSource);
+  	icp.setInputTarget (target);
+	icp.setMaxCorrespondenceDistance (0.7);
+	icp.setTransformationEpsilon(1e-6);
+	icp.setEuclideanFitnessEpsilon(1e-6);
+	
+	
+
+  	PointCloudT::Ptr cloud_icp (new PointCloudT);  // ICP output point cloud
+  	icp.align (*cloud_icp);
+  	
+
+  	if (icp.hasConverged ())
+  	{
+  		transformation_matrix = icp.getFinalTransformation ().cast<double>();
+  		transformation_matrix =  transformation_matrix * initTransform;
+
+  		return transformation_matrix;
+  	}
+	else
+  		cout << "WARNING: ICP did not converge" << endl;
+  	return transformation_matrix;
+
+}
+
+
+Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::PointCloud<PointT>::Ptr cloudFiltered, Eigen::Matrix4d init_guess , int iterations){
+	pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> ndt;
+	// Setting minimum transformation difference for termination condition.
+  	ndt.setTransformationEpsilon (.0001);
+  	// Setting maximum step size for More-Thuente line search.
+  	ndt.setStepSize (1);
+  	//Setting Resolution of NDT grid structure (VoxelGridCovariance).
+  	ndt.setResolution (1);
+  	ndt.setInputTarget (mapCloud);
+	ndt.setMaximumIterations (iterations);
+	ndt.setInputSource (cloudFiltered);
+
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ndt (new pcl::PointCloud<pcl::PointXYZ>);
+  	ndt.align (*cloud_ndt, init_guess.cast<float>());
+	//Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
+
+	Eigen::Matrix4d transformation_matrix;
+
+	if (ndt.hasConverged()) {
+		transformation_matrix = ndt.getFinalTransformation ().cast<double>();
+    }
+	else {
+		std::cout << "[WARNING] NDT did not converge" << std::endl;
+        return init_guess.cast<double>();
+	}
+
+	
+
+	return transformation_matrix;
+
+}
+
+/**
+	Get current vehicle Speed in Meter per Seconds.
+*/
+double getVehicleSpeedMs(const carla::SharedPtr<carla::client::Vehicle>& vehicle){
+	carla::geom::Vector3D vel = vehicle->GetVelocity();
+	return std::sqrt(vel.x * vel.x + vel.y * vel.y + vel.z * vel.z);
+}
+
+/**
+	Get current vehicle Yaw rate in Radiant per Second.
+*/
+double getVehicleYawRateRadS(const carla::SharedPtr<carla::client::Vehicle>& vehicle){
+	carla::geom::Vector3D ang = vehicle->GetAngularVelocity();
+	return ang.z * M_PI / 180.0;
+}
+
+void printTime(std::chrono::time_point<std::chrono::steady_clock> time, std::string label){
+	auto dur = time.time_since_epoch(); // duration since clock’s epoch
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
+
+	std::cout << label << ": " << ms << " ms since steady_clock epoch\n";
+}
+
+void printPosePosition(Pose pose, std::string label){
+	std::cout << label << "position.x:" << std::fixed << std::setprecision(2) << pose.position.x << endl;
+	std::cout << label << "position.y:" << std::fixed << std::setprecision(2) << pose.position.y << endl;
+	std::cout << label << "position.z:" << std::fixed << std::setprecision(2) << pose.position.z << endl;
+}
+
+Pose predictPoseFromSpeedAndYawRate(const Pose &current, double speed, double yaw_rate, std::chrono::time_point<std::chrono::steady_clock> &lastPredictedPoseTime){
+
+	auto now = std::chrono::steady_clock::now();
+	double dt = std::chrono::duration<double>(now - lastPredictedPoseTime).count();
+	lastPredictedPoseTime = now;
+
+	Pose predicted = current;
+
+    double yaw   = current.rotation.yaw;
+    double pitch = current.rotation.pitch;   // not used
+    double roll  = current.rotation.roll;    // not used
+
+    // ---- Predict orientation ----
+    double newYaw = yaw + yaw_rate * dt;
+
+    // ---- Predict translation ----
+    predicted.position.x += speed * std::cos(newYaw) * dt;
+    predicted.position.y += speed * std::sin(newYaw) * dt;
+    predicted.position.z  = current.position.z;   // ignore Z motion for cars
+
+    // ---- Store updated rotation ----
+    predicted.rotation.yaw   = newYaw;
+    predicted.rotation.pitch = pitch;
+    predicted.rotation.roll  = roll;
+
+    return predicted;
+
+}
+
 int main(){
 
 	auto client = cc::Client("localhost", 2000);
