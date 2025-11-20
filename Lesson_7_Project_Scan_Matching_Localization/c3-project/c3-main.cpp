@@ -410,7 +410,7 @@ int main(){
 		
 		printPose(pose, "predictedWithMotionModel.");
 		
-		printTime(lastPredictionTime, "lastPredictionTime");
+		std::cout << "poseError:" << poseError << endl;
 		
 		
 		if(!new_scan){
