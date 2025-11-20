@@ -402,7 +402,7 @@ int main(){
 
 		
 
-		if (first_scan) {
+		if (static_cast<int>(vehicle_speed) == 0) {
 			pose = poseRef; // use CARLA spawn pose as initial
 			first_scan = false;
 		} else {
