@@ -230,6 +230,12 @@ Pose predictPoseFromSpeedAndYawRate(const Pose current, double speed, double yaw
 
 }
 
+void printPose(Pose pose, std::string label){
+	printf("%s Position: < %6.3f, %6.3f, %6.3f >\n", label, pose.position.x, pose.position.y, pose.position.z);
+	printf("%s Rotation: < %6.3f, %6.3f, %6.3f >\n\n", label, pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll);
+}
+
+
 int main(){
 
 	auto client = cc::Client("localhost", 2000);
@@ -299,6 +305,8 @@ int main(){
 	Pose poseRef(Point(vehicle->GetTransform().location.x, vehicle->GetTransform().location.y, vehicle->GetTransform().location.z), Rotate(vehicle->GetTransform().rotation.yaw * pi/180, vehicle->GetTransform().rotation.pitch * pi/180, vehicle->GetTransform().rotation.roll * pi/180));
 	double maxError = 0;
 
+	printPose(poseRef, "Initial Pose Ref");
+	
 	while (!viewer->wasStopped())
   	{
 		while(new_scan){
@@ -313,6 +321,7 @@ int main(){
 		viewer->removeShape("box0");
 		viewer->removeShape("boxFill0");
 		Pose truePose = Pose(Point(vehicle->GetTransform().location.x, vehicle->GetTransform().location.y, vehicle->GetTransform().location.z), Rotate(vehicle->GetTransform().rotation.yaw * pi/180, vehicle->GetTransform().rotation.pitch * pi/180, vehicle->GetTransform().rotation.roll * pi/180)) - poseRef;
+		printPose(truePose, "True Pose");
 		drawCar(truePose, 0,  Color(1,0,0), 0.7, viewer);
 		double theta = truePose.rotation.yaw;
 		double stheta = control.steer * pi/4 + theta;
