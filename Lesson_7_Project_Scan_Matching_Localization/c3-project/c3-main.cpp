@@ -155,11 +155,12 @@ Eigen::Matrix4d getTransformWithICP(PointCloudT::Ptr target, PointCloudT::Ptr so
 Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::PointCloud<PointT>::Ptr cloudFiltered, Eigen::Matrix4d init_guess , int iterations){
 	pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> ndt;
 	// Setting minimum transformation difference for termination condition.
-  	ndt.setTransformationEpsilon (.0001);
+  	//ndt.setTransformationEpsilon (.0001);
+	ndt.setTransformationEpsilon (0.01);
   	// Setting maximum step size for More-Thuente line search.
-  	ndt.setStepSize (1);
+  	ndt.setStepSize (0.1);
   	//Setting Resolution of NDT grid structure (VoxelGridCovariance).
-  	ndt.setResolution (1);
+  	ndt.setResolution (0.5);
   	ndt.setInputTarget (mapCloud);
 	ndt.setMaximumIterations (iterations);
 	ndt.setInputSource (cloudFiltered);
@@ -429,7 +430,7 @@ int main(){
 				std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
 				//pose = truePose; // No change in pose
 				printPose(pose, "predictedWithoutMotionModel.");
-				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 50);
+				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 30);
 				if (lastPredictionTime == std::chrono::time_point<std::chrono::system_clock>()) {
 					lastPredictionTime = std::chrono::system_clock::now();
 				}
