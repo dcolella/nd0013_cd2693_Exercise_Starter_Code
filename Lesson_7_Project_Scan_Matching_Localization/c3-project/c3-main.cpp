@@ -363,7 +363,7 @@ int main(){
 		pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
 		printPose(pose, "predictedWithMotionModel.");
 		
-		printTime(pose_time, "pose_time");
+		printTime(lastPredictionTime, "lastPredictionTime");
 		
 		
 		if(!new_scan){
