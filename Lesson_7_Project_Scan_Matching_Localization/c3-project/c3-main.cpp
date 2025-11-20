@@ -388,40 +388,36 @@ int main(){
 			vehicle->ApplyControl(control);
 		}
 
-  		viewer->spinOnce ();
-
-		
-		double vehicle_speed = getVehicleSpeedMs(vehicle);
-		double vehicle_yaw_rate = getVehicleYawRateRadS(vehicle);
-
-		std::cout << "speed:" << vehicle_speed << endl;
-		std::cout << "yaw rate:" << vehicle_yaw_rate << endl;
-
-		printPose(truePose, "truePose.");
-		printPose(pose, "currentEstimatedPosition.");
-
-		
-
-		if (vehicle_speed > 0.05) {
-			lastPredictionTime = std::chrono::system_clock::now();
-			pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
-			std::cout << "Predicted pose using motion model." << std::endl;
-			printPose(pose, "predictedWithMotionModel.");
-		} else {
-			std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
-			//pose = truePose; // No change in pose
-			printPose(pose, "predictedWithoutMotionModel.");
-		}
-
-
-		
-		
+  		viewer->spinOnce ();		
 		
 		
 		
 		if(!new_scan){
 			
 			new_scan = true;
+
+			double vehicle_speed = getVehicleSpeedMs(vehicle);
+			double vehicle_yaw_rate = getVehicleYawRateRadS(vehicle);
+
+			std::cout << "speed:" << vehicle_speed << endl;
+			std::cout << "yaw rate:" << vehicle_yaw_rate << endl;
+
+			printPose(truePose, "truePose.");
+			printPose(pose, "currentEstimatedPosition.");
+
+			
+
+			if (vehicle_speed > 0.05) {
+				lastPredictionTime = std::chrono::system_clock::now();
+				pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
+				std::cout << "Predicted pose using motion model." << std::endl;
+				printPose(pose, "predictedWithMotionModel.");
+			} else {
+				std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
+				//pose = truePose; // No change in pose
+				printPose(pose, "predictedWithoutMotionModel.");
+			}
+
 			// TODO: (Filter scan using voxel filter)
 			pcl::VoxelGrid<PointT> vg;
 			vg.setInputCloud(scanCloud);
