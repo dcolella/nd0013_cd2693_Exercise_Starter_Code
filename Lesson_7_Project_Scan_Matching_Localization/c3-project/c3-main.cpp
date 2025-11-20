@@ -402,7 +402,7 @@ int main(){
 
 		
 
-		if (static_cast<int>(vehicle_speed) > 0) {
+		if (vehicle_speed > 0.05) {
 			lastPredictionTime = std::chrono::system_clock::now();
 			pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
 			std::cout << "Predicted pose using motion model." << std::endl;
@@ -463,7 +463,7 @@ int main(){
           	double poseError = sqrt( (truePose.position.x - pose.position.x) * (truePose.position.x - pose.position.x) + (truePose.position.y - pose.position.y) * (truePose.position.y - pose.position.y) );
 
 			std::cout << "Pose Error: " << poseError << " meters." << std::endl;
-			
+
 			if(poseError > maxError)
 				maxError = poseError;
 			double distDriven = sqrt( (truePose.position.x) * (truePose.position.x) + (truePose.position.y) * (truePose.position.y) );
