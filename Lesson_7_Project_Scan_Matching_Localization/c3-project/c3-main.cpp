@@ -406,16 +406,17 @@ int main(){
 			lastPredictionTime = std::chrono::system_clock::now();
 			pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
 			std::cout << "Predicted pose using motion model." << std::endl;
+			printPose(pose, "predictedWithMotionModel.");
 		} else {
 			std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
 			pose = truePose; // No change in pose
+			printPose(pose, "predictedWithoutMotionModel.");
 		}
 
 
 		
-		printPose(pose, "predictedWithMotionModel.");
 		
-		std::cout << "poseError:" << sqrt( (truePose.position.x - pose.position.x) * (truePose.position.x - pose.position.x) + (truePose.position.y - pose.position.y) * (truePose.position.y - pose.position.y) ) << endl;
+		
 		
 		
 		if(!new_scan){
@@ -460,6 +461,9 @@ int main(){
 			drawCar(pose, 1,  Color(0,1,0), 0.35, viewer);
           
           	double poseError = sqrt( (truePose.position.x - pose.position.x) * (truePose.position.x - pose.position.x) + (truePose.position.y - pose.position.y) * (truePose.position.y - pose.position.y) );
+
+			std::cout << "Pose Error: " << poseError << " meters." << std::endl;
+			
 			if(poseError > maxError)
 				maxError = poseError;
 			double distDriven = sqrt( (truePose.position.x) * (truePose.position.x) + (truePose.position.y) * (truePose.position.y) );
