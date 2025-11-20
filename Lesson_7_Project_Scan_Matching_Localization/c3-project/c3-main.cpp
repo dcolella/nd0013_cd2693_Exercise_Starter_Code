@@ -128,9 +128,9 @@ Eigen::Matrix4d getTransformWithICP(PointCloudT::Ptr target, PointCloudT::Ptr so
   	icp.setMaximumIterations (iterations);
   	icp.setInputSource (transformSource);
   	icp.setInputTarget (target);
-	icp.setMaxCorrespondenceDistance (0.7);
-	icp.setTransformationEpsilon(1e-6);
-	icp.setEuclideanFitnessEpsilon(1e-6);
+	icp.setMaxCorrespondenceDistance (0.6);
+	icp.setTransformationEpsilon(1e-5);
+	icp.setEuclideanFitnessEpsilon(1e-4);
 	
 	
 
@@ -425,7 +425,7 @@ int main(){
 				pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
 				std::cout << "Predicted pose using motion model." << std::endl;
 				printPose(pose, "predictedWithMotionModel.");
-				transform = getTransformWithICP(mapCloud, cloudFiltered, getTransformWithNDT(mapCloud, cloudFiltered, transform, 50), 50);
+				transform = getTransformWithICP(mapCloud, cloudFiltered, getTransformWithNDT(mapCloud, cloudFiltered, transform, 30), 50);
 			} else {
 				std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
 				//pose = truePose; // No change in pose
