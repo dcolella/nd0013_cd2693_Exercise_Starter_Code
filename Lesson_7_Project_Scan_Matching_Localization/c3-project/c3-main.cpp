@@ -46,6 +46,7 @@ using namespace std;
 PointCloudT pclCloud;
 cc::Vehicle::Control control;
 std::chrono::time_point<std::chrono::system_clock> currentTime;
+std::chrono::time_point<std::chrono::system_clock> lastPredictionTime;
 
 vector<ControlState> cs;
 
@@ -279,7 +280,6 @@ void printPose(Pose pose, std::string label){
 
 
 int main(){
-	std::chrono::time_point<std::chrono::system_clock> lastPredictionTime == std::chrono::time_point<std::chrono::system_clock>();
 
 	auto client = cc::Client("localhost", 2000);
 	client.SetTimeout(2s);
