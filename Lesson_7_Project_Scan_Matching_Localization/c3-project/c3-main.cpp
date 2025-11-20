@@ -438,10 +438,11 @@ int main(){
 				vg.filter(*cloudFiltered);
 				std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
 				//pose = truePose; // No change in pose
-				printPose(pose, "predictedWithoutMotionModel.");
+				
 				transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 30);
 				pose = getPose(transform);
+				printPose(pose, "predictedWithoutMotionModel.");
 				if (lastPredictionTime == std::chrono::time_point<std::chrono::system_clock>()) {
 					lastPredictionTime = std::chrono::system_clock::now();
 				}
