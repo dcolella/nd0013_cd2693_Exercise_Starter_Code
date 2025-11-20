@@ -431,7 +431,7 @@ int main(){
 			Eigen::Matrix4d init_guess = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll,pose.position.x, pose.position.y, pose.position.z);
 
 			// Hybrid NDT → ICP
-			Eigen::Matrix4d transform = hybridScanMatch(mapCloud, cloudFiltered, init_guess);
+			Eigen::Matrix4d transform = hybridScanMatch(mapCloud, scanCloud, init_guess);
 			pose = getPose(transform); // update your pose
 
 
