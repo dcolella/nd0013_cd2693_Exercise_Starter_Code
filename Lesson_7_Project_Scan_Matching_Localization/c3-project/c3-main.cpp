@@ -427,7 +427,7 @@ int main(){
 			typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
 			vg.filter(*cloudFiltered);
 
-			/* GOOD RESULTS
+			
 			Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 			// TODO: Find pose transform by using ICP or NDT matching
 			//pose = ....
@@ -436,14 +436,14 @@ int main(){
 			transform = getTransformWithICP(mapCloud, cloudFiltered, getTransformWithNDT(mapCloud, cloudFiltered, transform, 50), 50);
 			pose = getPose(transform);
 
-			*/
-
+			
+			/*
 			Eigen::Matrix4d init_guess = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll,pose.position.x, pose.position.y, pose.position.z);
 
 			// Hybrid NDT → ICP
 			Eigen::Matrix4d transform = hybridScanMatch(mapCloud, scanCloud, init_guess);
 			pose = getPose(transform); // update your pose
-
+			*/
 
 			// TODO: Transform scan so it aligns with ego's actual pose and render that scan
 			PointCloudT::Ptr transformed_scan (new PointCloudT);
