@@ -264,7 +264,7 @@ int main(){
 	lidar_bp.SetAttribute("channels", "32");               
 	lidar_bp.SetAttribute("upper_fov", "8");               
 	lidar_bp.SetAttribute("lower_fov", "-12");             
-	lidar_bp.SetAttribute("range", "80");                  
+	lidar_bp.SetAttribute("range", "70");                  
 	lidar_bp.SetAttribute("rotation_frequency", "10");     
 	lidar_bp.SetAttribute("points_per_second", "1000000"); 
 	lidar_bp.SetAttribute("noise_stddev", "0.02");         
