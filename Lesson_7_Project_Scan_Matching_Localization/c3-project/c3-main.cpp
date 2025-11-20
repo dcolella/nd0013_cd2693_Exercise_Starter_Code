@@ -396,6 +396,17 @@ int main(){
 			
 			new_scan = true;
 
+			// TODO: (Filter scan using voxel filter)
+			pcl::VoxelGrid<PointT> vg;
+			vg.setInputCloud(scanCloud);
+			double filterRes = 0.2;
+			
+			vg.setLeafSize(filterRes, filterRes, filterRes);
+			typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
+			vg.filter(*cloudFiltered);
+
+			Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
+
 			double vehicle_speed = getVehicleSpeedMs(vehicle);
 			double vehicle_yaw_rate = getVehicleYawRateRadS(vehicle);
 
@@ -403,9 +414,7 @@ int main(){
 			std::cout << "yaw rate:" << vehicle_yaw_rate << endl;
 
 			printPose(truePose, "truePose.");
-			printPose(pose, "currentEstimatedPosition.");
-
-			
+			printPose(pose, "currentEstimatedPosition.");	
 
 			if (vehicle_speed > 0.05) {
 				if(first_scan){
@@ -416,28 +425,20 @@ int main(){
 				pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
 				std::cout << "Predicted pose using motion model." << std::endl;
 				printPose(pose, "predictedWithMotionModel.");
+				transform = getTransformWithICP(mapCloud, cloudFiltered, getTransformWithNDT(mapCloud, cloudFiltered, transform, 50), 50);
 			} else {
 				std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
 				//pose = truePose; // No change in pose
 				printPose(pose, "predictedWithoutMotionModel.");
+				trasform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 50);
 			}
-
-			// TODO: (Filter scan using voxel filter)
-			pcl::VoxelGrid<PointT> vg;
-			vg.setInputCloud(scanCloud);
-			double filterRes = 0.2;
 			
-			vg.setLeafSize(filterRes, filterRes, filterRes);
-			typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
-			vg.filter(*cloudFiltered);
-
 			
-			Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 			// TODO: Find pose transform by using ICP or NDT matching
 			//pose = ....
 			
 			
-			transform = getTransformWithICP(mapCloud, cloudFiltered, getTransformWithNDT(mapCloud, cloudFiltered, transform, 50), 50);
+			
 			pose = getPose(transform);
 
 			
