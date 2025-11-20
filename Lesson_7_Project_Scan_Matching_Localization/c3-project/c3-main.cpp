@@ -405,7 +405,7 @@ int main(){
 			pcl::VoxelGrid<PointT> vg;
 			vg.setInputCloud(scanCloud);
 
-			Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
+			Eigen::Matrix4d transform;
 
 			double vehicle_speed = getVehicleSpeedMs(vehicle);
 			double vehicle_yaw_rate = getVehicleYawRateRadS(vehicle);
@@ -422,11 +422,14 @@ int main(){
 				vg.setLeafSize(filterRes, filterRes, filterRes);
 				typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
 				vg.filter(*cloudFiltered);
-				//pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
+				
+				pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
+				transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 30);
-				std::cout << "Predicted pose using motion model." << std::endl;
-				printPose(pose, "predictedWithMotionModel.");
 				transform = getTransformWithICP(mapCloud, cloudFiltered, getTransformWithNDT(mapCloud, cloudFiltered, transform, 30), 50);
+				std::cout << "Predicted pose using motion model." << std::endl;
+				pose = getPose(transform);
+				printPose(pose, "predictedWithMotionModel.");
 			} else {
 				double filterRes = 0.2;
 				
@@ -436,7 +439,9 @@ int main(){
 				std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
 				//pose = truePose; // No change in pose
 				printPose(pose, "predictedWithoutMotionModel.");
+				transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 30);
+				pose = getPose(transform);
 				if (lastPredictionTime == std::chrono::time_point<std::chrono::system_clock>()) {
 					lastPredictionTime = std::chrono::system_clock::now();
 				}
@@ -447,7 +452,7 @@ int main(){
 			// TODO: Find pose transform by using ICP or NDT matching
 			//pose = ....
 			
-			pose = getPose(transform);
+			
 
 			
 			/*
