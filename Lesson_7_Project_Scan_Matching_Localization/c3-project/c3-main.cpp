@@ -44,7 +44,8 @@ using namespace std;
 PointCloudT pclCloud;
 cc::Vehicle::Control control;
 std::chrono::time_point<std::chrono::system_clock> currentTime;
-std::chrono::time_point<std::chrono::system_clock> lastPredictionTime;
+//std::chrono::time_point<std::chrono::system_clock> lastPredictionTime;
+std::optional<std::chrono::system_clock::time_point> lastPredictionTime;
 vector<ControlState> cs;
 
 bool refresh_view = false;
@@ -426,7 +427,10 @@ int main(){
 				//pose = truePose; // No change in pose
 				printPose(pose, "predictedWithoutMotionModel.");
 				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 50);
-				lastPredictionTime = std::chrono::system_clock::now();
+				if (!lastPredictionTime.has_value()) {
+					lastPredictionTime = std::chrono::system_clock::now();
+				}
+				
 			}
 			
 			
