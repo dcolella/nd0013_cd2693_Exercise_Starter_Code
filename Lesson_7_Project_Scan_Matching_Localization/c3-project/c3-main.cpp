@@ -408,6 +408,7 @@ int main(){
 			std::cout << "Predicted pose using motion model." << std::endl;
 		} else {
 			std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
+			pose = poseRef; // No change in pose
 		}
 
 
