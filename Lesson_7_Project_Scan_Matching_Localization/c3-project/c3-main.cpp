@@ -402,10 +402,7 @@ int main(){
 
 		
 
-		if (static_cast<int>(vehicle_speed) == 0) {
-			pose = poseRef; // use CARLA spawn pose as initial
-			first_scan = false;
-		} else {
+		if (static_cast<int>(vehicle_speed) > 0) {
 			lastPredictionTime = std::chrono::system_clock::now();
 			pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
 		}
