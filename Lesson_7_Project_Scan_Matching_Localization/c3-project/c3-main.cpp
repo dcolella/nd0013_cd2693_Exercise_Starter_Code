@@ -430,7 +430,7 @@ int main(){
 				std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
 				//pose = truePose; // No change in pose
 				printPose(pose, "predictedWithoutMotionModel.");
-				trasform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 50);
+				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 50);
 			}
 			
 			
