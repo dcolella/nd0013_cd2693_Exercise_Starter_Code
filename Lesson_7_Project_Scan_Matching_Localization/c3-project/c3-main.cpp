@@ -37,6 +37,7 @@ using namespace std;
 PointCloudT pclCloud;
 cc::Vehicle::Control control;
 std::chrono::time_point<std::chrono::system_clock> currentTime;
+std::chrono::time_point<std::chrono::system_clock> lastPredictionTime;
 vector<ControlState> cs;
 
 bool refresh_view = false;
@@ -188,7 +189,7 @@ double getVehicleYawRateRadS(const carla::SharedPtr<carla::client::Vehicle>& veh
 	return ang.z * M_PI / 180.0;
 }
 
-void printTime(std::chrono::time_point<std::chrono::steady_clock> time, std::string label){
+void printTime(std::chrono::time_point<std::chrono::system_clock> time, std::string label){
 	auto dur = time.time_since_epoch(); // duration since clock’s epoch
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
 
@@ -201,9 +202,9 @@ void printPosePosition(Pose pose, std::string label){
 	std::cout << label << "position.z:" << std::fixed << std::setprecision(2) << pose.position.z << endl;
 }
 
-Pose predictPoseFromSpeedAndYawRate(const Pose current, double speed, double yaw_rate, std::chrono::time_point<std::chrono::steady_clock> &lastPredictedPoseTime){
+Pose predictPoseFromSpeedAndYawRate(const Pose current, double speed, double yaw_rate, std::chrono::time_point<std::chrono::system_clock> &lastPredictedPoseTime){
 
-	auto now = std::chrono::steady_clock::now();
+	auto now = std::chrono::system_clock::now();
 	double dt = std::chrono::duration<double>(now - lastPredictedPoseTime).count();
 	lastPredictedPoseTime = now;
 
@@ -231,8 +232,8 @@ Pose predictPoseFromSpeedAndYawRate(const Pose current, double speed, double yaw
 }
 
 void printPose(Pose pose, std::string label){
-	printf("%s Position: < %6.3f, %6.3f, %6.3f >\n", label, pose.position.x, pose.position.y, pose.position.z);
-	printf("%s Rotation: < %6.3f, %6.3f, %6.3f >\n\n", label, pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll);
+	printf("%s Position: < %6.3f, %6.3f, %6.3f >\n", label.c_str(), pose.position.x, pose.position.y, pose.position.z);
+	printf("%s Rotation: < %6.3f, %6.3f, %6.3f >\n\n", label.c_str(), pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll);
 }
 
 
@@ -252,12 +253,23 @@ int main(){
 	//Create lidar
 	auto lidar_bp = *(blueprint_library->Find("sensor.lidar.ray_cast"));
 	// CANDO: Can modify lidar values to get different scan resolutions
+	/*
 	lidar_bp.SetAttribute("upper_fov", "15");
     lidar_bp.SetAttribute("lower_fov", "-25");
     lidar_bp.SetAttribute("channels", "32");
     lidar_bp.SetAttribute("range", "30");
 	lidar_bp.SetAttribute("rotation_frequency", "60");
 	lidar_bp.SetAttribute("points_per_second", "500000");
+	*/
+	lidar_bp.SetAttribute("channels", "32");               
+	lidar_bp.SetAttribute("upper_fov", "8");               
+	lidar_bp.SetAttribute("lower_fov", "-12");             
+	lidar_bp.SetAttribute("range", "80");                  
+	lidar_bp.SetAttribute("rotation_frequency", "10");     
+	lidar_bp.SetAttribute("points_per_second", "1000000"); 
+	lidar_bp.SetAttribute("noise_stddev", "0.02");         
+	lidar_bp.SetAttribute("dropoff_general_rate", "0.0");  
+	lidar_bp.SetAttribute("returns", "Single");            
 
 	auto user_offset = cg::Location(0, 0, 0);
 	auto lidar_transform = cg::Transform(cg::Location(-0.5, 0, 1.8) + user_offset);
@@ -272,9 +284,7 @@ int main(){
 
 	auto vehicle = boost::static_pointer_cast<cc::Vehicle>(ego_actor);
 	Pose pose(Point(0,0,0), Rotate(0,0,0));
-	std::chrono::time_point<std::chrono::steady_clock> pose_time = std::chrono::steady_clock::now();
-
-	printTime(pose_time, "pose_time");
+	lastPredictionTime = std::chrono::system_clock::now();
 
 	// Load map
 	PointCloudT::Ptr mapCloud(new PointCloudT);
@@ -347,11 +357,11 @@ int main(){
 		std::cout << "speed:" << vehicle_speed << endl;
 		std::cout << "yaw rate:" << vehicle_yaw_rate << endl;
 
-		printPosePosition(truePose, "truePose.");
-		printPosePosition(pose, "currentEstimatedPosition.");
+		printPose(truePose, "truePose.");
+		printPose(pose, "currentEstimatedPosition.");
 
-		pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, pose_time);
-		printPosePosition(pose, "predictedWithMotionModel.");
+		pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
+		printPose(pose, "predictedWithMotionModel.");
 		
 		printTime(pose_time, "pose_time");
 		
@@ -397,6 +407,7 @@ int main(){
 			viewer->addText("Pose error: "+to_string(poseError)+" m", 200, 150, 32, 1.0, 1.0, 1.0, "derror",0);
 			viewer->removeShape("dist");
 			viewer->addText("Distance: "+to_string(distDriven)+" m", 200, 200, 32, 1.0, 1.0, 1.0, "dist",0);
+			
 
 			if(maxError > 1.2 || distDriven >= 170.0 ){
 				viewer->removeShape("eval");
