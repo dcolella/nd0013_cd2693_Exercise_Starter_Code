@@ -410,10 +410,6 @@ int main(){
 		} else {
 			std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
 			//pose = truePose; // No change in pose
-			if(first_scan){
-				pose = truePose;
-				first_scan = false;
-			}
 			printPose(pose, "predictedWithoutMotionModel.");
 		}
 
