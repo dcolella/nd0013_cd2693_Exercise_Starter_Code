@@ -39,7 +39,7 @@ using namespace std;
 #include <pcl/registration/transformation_estimation_point_to_plane.h>
 #include <pcl/features/normal_3d_omp.h>
 #include <pcl/filters/statistical_outlier_removal.h>
-#include <pcl/registration/correspondence_rejector_trimmed.h>
+
 
 PointCloudT pclCloud;
 cc::Vehicle::Control control;
