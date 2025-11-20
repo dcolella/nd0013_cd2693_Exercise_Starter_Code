@@ -410,7 +410,7 @@ int main(){
 		
 		printPose(pose, "predictedWithMotionModel.");
 		
-		std::cout << "poseError:" << poseError << endl;
+		std::cout << "poseError:" << sqrt( (truePose.position.x - pose.position.x) * (truePose.position.x - pose.position.x) + (truePose.position.y - pose.position.y) * (truePose.position.y - pose.position.y) ) << endl;
 		
 		
 		if(!new_scan){
