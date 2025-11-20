@@ -413,8 +413,7 @@ int main(){
 			std::cout << "speed:" << vehicle_speed << endl;
 			std::cout << "yaw rate:" << vehicle_yaw_rate << endl;
 
-			printPose(truePose, "truePose.");
-			printPose(pose, "currentEstimatedPosition.");	
+			printPose(truePose, "truePose.");	
 
 			if (vehicle_speed > 0.000358775) {					
 				double filterRes = 0.3;
@@ -427,8 +426,9 @@ int main(){
 				transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 30);
 				transform = getTransformWithICP(mapCloud, cloudFiltered, getTransformWithNDT(mapCloud, cloudFiltered, transform, 30), 50);
-				std::cout << "Predicted pose using motion model." << std::endl;
+				
 				pose = getPose(transform);
+				std::cout << "Predicted pose using motion model." << std::endl;
 				printPose(pose, "predictedWithMotionModel.");
 			} else {
 				double filterRes = 0.2;
@@ -436,15 +436,16 @@ int main(){
 				vg.setLeafSize(filterRes, filterRes, filterRes);
 				typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
 				vg.filter(*cloudFiltered);
-				std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
 				//pose = truePose; // No change in pose
 				
 				transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 30);
+				lastPredictionTime = std::chrono::system_clock::now();
 				pose = getPose(transform);
+				std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
 				printPose(pose, "predictedWithoutMotionModel.");
 				//if (lastPredictionTime == std::chrono::time_point<std::chrono::system_clock>()) {
-				lastPredictionTime = std::chrono::system_clock::now();
+				
 				//}
 				
 			}
