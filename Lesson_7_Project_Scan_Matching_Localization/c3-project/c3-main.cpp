@@ -503,7 +503,7 @@ int main(){
 											pose.position.x, pose.position.y, pose.position.z);
 
 			// coarse NDT
-			Eigen::Matrix4d ndt_out = getTransformWithNDT(mapCloud, cloudFiltered, init, 35, 1.0, 0.8, 1e-4);
+			Eigen::Matrix4d ndt_out = getTransformWithNDT_V2(mapCloud, cloudFiltered, init, 35, 1.0, 0.8, 1e-4);
 
 			// refine with point-to-plane ICP
 			Eigen::Matrix4d icp_out = getTransformWithICP_PointToPlane(mapCloud, cloudFiltered, ndt_out, 40, 0.8, 1e-6, 0.8);
