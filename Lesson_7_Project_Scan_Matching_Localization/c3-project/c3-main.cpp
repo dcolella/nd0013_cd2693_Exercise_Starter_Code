@@ -443,9 +443,9 @@ int main(){
 				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 30);
 				pose = getPose(transform);
 				printPose(pose, "predictedWithoutMotionModel.");
-				if (lastPredictionTime == std::chrono::time_point<std::chrono::system_clock>()) {
-					lastPredictionTime = std::chrono::system_clock::now();
-				}
+				//if (lastPredictionTime == std::chrono::time_point<std::chrono::system_clock>()) {
+				lastPredictionTime = std::chrono::system_clock::now();
+				//}
 				
 			}
 			
