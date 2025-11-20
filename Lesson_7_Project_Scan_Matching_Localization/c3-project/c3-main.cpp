@@ -405,7 +405,11 @@ int main(){
 		if (static_cast<int>(vehicle_speed) > 0) {
 			lastPredictionTime = std::chrono::system_clock::now();
 			pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
+			std::cout << "Predicted pose using motion model." << std::endl;
+		} else {
+			std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
 		}
+
 
 		
 		printPose(pose, "predictedWithMotionModel.");
