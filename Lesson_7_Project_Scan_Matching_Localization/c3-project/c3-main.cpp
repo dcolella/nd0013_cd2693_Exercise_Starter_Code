@@ -315,6 +315,7 @@ int main(){
 	auto lidar_actor = world.SpawnActor(lidar_bp, lidar_transform, ego_actor.get());
 	auto lidar = boost::static_pointer_cast<cc::Sensor>(lidar_actor);
 	bool new_scan = true;
+	bool first_scan = true;
 	std::chrono::time_point<std::chrono::system_clock> lastScanTime, startTime;
 
 	pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
@@ -323,7 +324,7 @@ int main(){
 
 	auto vehicle = boost::static_pointer_cast<cc::Vehicle>(ego_actor);
 	Pose pose(Point(0,0,0), Rotate(0,0,0));
-	lastPredictionTime = std::chrono::system_clock::now();
+	
 
 	// Load map
 	PointCloudT::Ptr mapCloud(new PointCloudT);
@@ -399,7 +400,17 @@ int main(){
 		printPose(truePose, "truePose.");
 		printPose(pose, "currentEstimatedPosition.");
 
-		pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
+		
+
+		if (first_scan) {
+			pose = poseRef; // use CARLA spawn pose as initial
+			first_scan = false;
+		} else {
+			lastPredictionTime = std::chrono::system_clock::now();
+			pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
+		}
+
+		
 		printPose(pose, "predictedWithMotionModel.");
 		
 		printTime(lastPredictionTime, "lastPredictionTime");
