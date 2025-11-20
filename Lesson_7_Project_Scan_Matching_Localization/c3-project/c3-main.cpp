@@ -437,8 +437,6 @@ int main(){
 			// TODO: Find pose transform by using ICP or NDT matching
 			//pose = ....
 			
-			
-			
 			pose = getPose(transform);
 
 			
