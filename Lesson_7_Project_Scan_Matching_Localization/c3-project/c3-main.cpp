@@ -34,6 +34,13 @@ using namespace std;
 #include <pcl/registration/ndt.h>
 #include <pcl/console/time.h>   // TicToc
 
+
+#include <pcl/registration/transforms.h>
+#include <pcl/registration/transformation_estimation_point_to_plane.h>
+#include <pcl/features/normal_3d_omp.h>
+#include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl/registration/correspondence_rejector_trimmed.h>
+
 PointCloudT pclCloud;
 cc::Vehicle::Control control;
 std::chrono::time_point<std::chrono::system_clock> currentTime;
@@ -172,6 +179,108 @@ Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::Poi
 	return transformation_matrix;
 
 }
+
+Eigen::Matrix4d getTransformWithNDT_V2(
+    PointCloudT::Ptr mapCloud,
+    PointCloudT::Ptr sourceCloud,
+    Eigen::Matrix4d init_guess,
+    int iterations,
+    double resolution = 1.0,
+    double step_size = 0.8,
+    double trans_eps = 1e-4)
+{
+    pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> ndt;
+    ndt.setTransformationEpsilon(trans_eps);
+    ndt.setStepSize(step_size);
+    ndt.setResolution(resolution);
+    ndt.setMaximumIterations(iterations);
+    ndt.setInputTarget(mapCloud);
+    ndt.setInputSource(sourceCloud);
+
+    pcl::PointCloud<pcl::PointXYZ> output;
+    // PCL's align wants the initial guess as Eigen::Matrix4f
+    Eigen::Matrix4f init = init_guess.cast<float>();
+    ndt.align(output, init);
+
+    Eigen::Matrix4d transformation_matrix = init_guess; // default fallback
+    if (ndt.hasConverged()) {
+        transformation_matrix = ndt.getFinalTransformation().cast<double>();
+    } else {
+        std::cerr << "[WARN] NDT did not converge; returning init_guess" << std::endl;
+    }
+    return transformation_matrix;
+}
+
+// Point-to-plane ICP using normals
+Eigen::Matrix4d getTransformWithICP_PointToPlane(
+    PointCloudT::Ptr target,           // map (no normals needed)
+    PointCloudT::Ptr source,           // current scan (voxel filtered)
+    Eigen::Matrix4d initTransform,
+    int max_iter = 50,
+    double max_corr_dist = 0.8,
+    double trans_eps = 1e-6,
+    double normal_radius = 0.8)
+{
+    // 1) compute normals for the source cloud (fast OMP)
+    pcl::PointCloud<pcl::Normal>::Ptr src_normals(new pcl::PointCloud<pcl::Normal>);
+    pcl::NormalEstimationOMP<pcl::PointXYZ, pcl::Normal> ne;
+    ne.setNumberOfThreads(4); // tune for your CPU
+    ne.setInputCloud(source);
+    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
+    ne.setSearchMethod(tree);
+    ne.setRadiusSearch(normal_radius);
+    ne.compute(*src_normals);
+
+    // 2) create PointCloud with normals (source)
+    pcl::PointCloud<pcl::PointNormal>::Ptr src_with_normals(new pcl::PointCloud<pcl::PointNormal>);
+    pcl::concatenateFields(*source, *src_normals, *src_with_normals);
+
+    // 3) target can be plain XYZ but ICP with normals requires target normals too.
+    // Compute normals for target as well (or approximate by copying src normals if map is dense).
+    pcl::PointCloud<pcl::Normal>::Ptr tgt_normals(new pcl::PointCloud<pcl::Normal>);
+    ne.setInputCloud(target);
+    ne.setRadiusSearch(normal_radius);
+    ne.compute(*tgt_normals);
+    pcl::PointCloud<pcl::PointNormal>::Ptr tgt_with_normals(new pcl::PointCloud<pcl::PointNormal>);
+    pcl::concatenateFields(*target, *tgt_normals, *tgt_with_normals);
+
+    // 4) Setup ICP (using TransformationEstimationPointToPlane)
+    pcl::IterativeClosestPointWithNormals<pcl::PointNormal, pcl::PointNormal> icp;
+    icp.setMaximumIterations(max_iter);
+    icp.setMaxCorrespondenceDistance(max_corr_dist);
+    icp.setTransformationEpsilon(trans_eps);
+    icp.setUseReciprocalCorrespondences(true);
+
+    icp.setInputSource(src_with_normals);
+    icp.setInputTarget(tgt_with_normals);
+
+    // Initial transform: transform source to approx pose first
+    PointCloudT::Ptr tmpSrc(new PointCloudT);
+    pcl::transformPointCloud(*source, *tmpSrc, initTransform);
+
+    // recompute normals on transformed source? (optional) skip for speed (normals rotate with rigid transform if computed in body frame)
+    // Convert transformed source + normals to PointNormal if needed...
+    // Simpler: transform src_with_normals by initTransform (affine)
+    pcl::PointCloud<pcl::PointNormal>::Ptr src_with_normals_trans(new pcl::PointCloud<pcl::PointNormal>);
+    pcl::transformPointCloud(*src_with_normals, *src_with_normals_trans, initTransform);
+
+    pcl::PointCloud<pcl::PointNormal> final_cloud;
+    icp.align(final_cloud);
+
+    Eigen::Matrix4d result = initTransform;
+    if (icp.hasConverged()) {
+        Eigen::Matrix4f T = icp.getFinalTransformation();
+        // final T maps transformed-source -> target, but we already pre-applied initTransform,
+        // so the overall transform = T * initTransform
+        result = (T.cast<double>() * initTransform);
+    } else {
+        std::cerr << "[WARN] ICP did not converge" << std::endl;
+    }
+
+    return result;
+}
+
+
 
 /**
 	Get current vehicle Speed in Meter per Seconds.
@@ -383,9 +492,24 @@ int main(){
 			// TODO: Find pose transform by using ICP or NDT matching
 			//pose = ....
 			
-			
+			/* GOOD RESULTS
 			transform = getTransformWithICP(mapCloud, cloudFiltered, getTransformWithNDT(mapCloud, cloudFiltered, transform, 50), 50);
 			pose = getPose(transform);
+
+			*/
+
+			// compute initial guess from motion model
+			Eigen::Matrix4d init = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll,
+											pose.position.x, pose.position.y, pose.position.z);
+
+			// coarse NDT
+			Eigen::Matrix4d ndt_out = getTransformWithNDT(mapCloud, cloudFiltered, init, 35, 1.0, 0.8, 1e-4);
+
+			// refine with point-to-plane ICP
+			Eigen::Matrix4d icp_out = getTransformWithICP_PointToPlane(mapCloud, cloudFiltered, ndt_out, 40, 0.8, 1e-6, 0.8);
+
+			pose = getPose(icp_out);
+
 
 			// TODO: Transform scan so it aligns with ego's actual pose and render that scan
 			PointCloudT::Ptr transformed_scan (new PointCloudT);
