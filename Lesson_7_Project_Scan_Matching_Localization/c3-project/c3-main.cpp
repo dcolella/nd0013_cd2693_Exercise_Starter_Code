@@ -404,11 +404,6 @@ int main(){
 			// TODO: (Filter scan using voxel filter)
 			pcl::VoxelGrid<PointT> vg;
 			vg.setInputCloud(scanCloud);
-			double filterRes = 0.2;
-			
-			vg.setLeafSize(filterRes, filterRes, filterRes);
-			typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
-			vg.filter(*cloudFiltered);
 
 			Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 
@@ -422,11 +417,21 @@ int main(){
 			printPose(pose, "currentEstimatedPosition.");	
 
 			if (vehicle_speed > 0.05) {					
+				double filterRes = 0.3;
+				
+				vg.setLeafSize(filterRes, filterRes, filterRes);
+				typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
+				vg.filter(*cloudFiltered);
 				pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
 				std::cout << "Predicted pose using motion model." << std::endl;
 				printPose(pose, "predictedWithMotionModel.");
 				transform = getTransformWithICP(mapCloud, cloudFiltered, getTransformWithNDT(mapCloud, cloudFiltered, transform, 30), 50);
 			} else {
+				double filterRes = 0.2;
+				
+				vg.setLeafSize(filterRes, filterRes, filterRes);
+				typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
+				vg.filter(*cloudFiltered);
 				std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
 				//pose = truePose; // No change in pose
 				printPose(pose, "predictedWithoutMotionModel.");
