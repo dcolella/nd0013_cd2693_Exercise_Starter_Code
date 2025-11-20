@@ -305,7 +305,7 @@ int main(){
 					pclCloud.points.push_back(PointT(detection.x, detection.y, detection.z));
 				}
 			}
-			if(pclCloud.points.size() > 500000){ // CANDO: Can modify this value to get different scan resolutions
+			if(pclCloud.points.size() > 5000){ // CANDO: Can modify this value to get different scan resolutions
 				lastScanTime = std::chrono::system_clock::now();
 				*scanCloud = pclCloud;
 				new_scan = false;
