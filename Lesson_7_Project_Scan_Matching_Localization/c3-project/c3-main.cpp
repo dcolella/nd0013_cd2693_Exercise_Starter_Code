@@ -488,7 +488,7 @@ int main(){
 				//pose = truePose; // No change in pose
 				
 				transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
-				//transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 30, logger);
+				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 30, logger);
 				lastPredictionTime = std::chrono::system_clock::now();
 				pose = getPose(transform);
 				//std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
