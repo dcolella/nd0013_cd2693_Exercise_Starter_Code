@@ -115,7 +115,7 @@ void drawCar(Pose pose, int num, Color color, double alpha, pcl::visualization::
 
 enum ScanMatchAlgo{ Off, Icp, Ndt, Hybrid, SpeedAdapt, Interpolation};
 
-Eigen::Matrix4d getTransformWithICP(PointCloudT::Ptr target, PointCloudT::Ptr source, Eigen::Matrix4d initTransform, int iterations){
+Eigen::Matrix4d getTransformWithICP(PointCloudT::Ptr target, PointCloudT::Ptr source, Eigen::Matrix4d initTransform, int iterations, auto logger){
 
 	// Defining a rotation matrix and translation vector
   	Eigen::Matrix4d transformation_matrix = Eigen::Matrix4d::Identity ();
@@ -149,13 +149,14 @@ Eigen::Matrix4d getTransformWithICP(PointCloudT::Ptr target, PointCloudT::Ptr so
   		return transformation_matrix;
   	}
 	else
-  		cout << "WARNING: ICP did not converge" << endl;
+  		//cout << "WARNING: ICP did not converge" << endl;
+		logger.warn("ICP did not converge");
   	return transformation_matrix;
 
 }
 
 
-Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::PointCloud<PointT>::Ptr cloudFiltered, Eigen::Matrix4d init_guess , int iterations){
+Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::PointCloud<PointT>::Ptr cloudFiltered, Eigen::Matrix4d init_guess , int iterations, auto logger){
 	pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> ndt;
 	// Setting minimum transformation difference for termination condition.
   	//ndt.setTransformationEpsilon (.0001);
@@ -178,7 +179,8 @@ Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::Poi
 		transformation_matrix = ndt.getFinalTransformation ().cast<double>();
     }
 	else {
-		std::cout << "[WARNING] NDT did not converge" << std::endl;
+		//std::cout << "[WARNING] NDT did not converge" << std::endl;
+		logger.warn("NDT did not converge");
         return init_guess.cast<double>();
 	}
 
@@ -235,11 +237,12 @@ double getVehicleYawRateRadS(const carla::SharedPtr<carla::client::Vehicle>& veh
 	return ang.z * M_PI / 180.0;
 }
 
-void printTime(std::chrono::time_point<std::chrono::system_clock> time, std::string label){
+void printTime(std::chrono::time_point<std::chrono::system_clock> time, std::string label, auto logger){
 	auto dur = time.time_since_epoch(); // duration since clock’s epoch
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
 
-	std::cout << label << ": " << ms << " ms since steady_clock epoch\n";
+	//std::cout << label << ": " << ms << " ms since steady_clock epoch\n";
+	logger.info("{}: {} ms since steady_clock epoch", label.c_str(), ms);
 }
 
 void printPosePosition(Pose pose, std::string label, auto logger){
@@ -457,8 +460,10 @@ int main(){
 			double vehicle_speed = getVehicleSpeedMs(vehicle);
 			double vehicle_yaw_rate = getVehicleYawRateRadS(vehicle);
 
-			std::cout << "speed:" << vehicle_speed << endl;
-			std::cout << "yaw rate:" << vehicle_yaw_rate << endl;
+			//std::cout << "speed:" << vehicle_speed << endl;
+			//std::cout << "yaw rate:" << vehicle_yaw_rate << endl;
+			logger.info("vehicle speed: {}", vehicle_speed);
+			logger.info("vehicle yaw rate: {}", vehicle_yaw_rate);
 
 			printPose(truePose, "truePose.", logger);	
 
@@ -475,7 +480,8 @@ int main(){
 				transform = getTransformWithICP(mapCloud, cloudFiltered, getTransformWithNDT(mapCloud, cloudFiltered, transform, 30), 50);
 				
 				pose = getPose(transform);
-				std::cout << "Predicted pose using motion model." << std::endl;
+				//std::cout << "Predicted pose using motion model." << std::endl;
+				logger.info("Predicted pose using motion model.");
 				printPose(pose, "predictedWithMotionModel.", logger);
 			} else {
 				double filterRes = 0.2;
@@ -489,7 +495,8 @@ int main(){
 				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 30);
 				lastPredictionTime = std::chrono::system_clock::now();
 				pose = getPose(transform);
-				std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
+				//std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
+				logger.info("Speed is zero, skipping motion model prediction.");
 				printPose(pose, "predictedWithoutMotionModel.", logger);
 				//if (lastPredictionTime == std::chrono::time_point<std::chrono::system_clock>()) {
 				
@@ -525,7 +532,8 @@ int main(){
           
           	double poseError = sqrt( (truePose.position.x - pose.position.x) * (truePose.position.x - pose.position.x) + (truePose.position.y - pose.position.y) * (truePose.position.y - pose.position.y) );
 
-			std::cout << "Pose Error: " << poseError << " meters." << std::endl;
+			//std::cout << "Pose Error: " << poseError << " meters." << std::endl;
+			logger.info("Pose Error: {} meters.", poseError);
 
 			if(poseError > maxError)
 				maxError = poseError;
