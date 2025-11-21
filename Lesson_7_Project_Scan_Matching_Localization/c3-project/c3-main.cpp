@@ -289,6 +289,7 @@ int main(){
 
 	logger->info("Application started");
     logger->warn("Hellow World!");
+	logger->debug("Debug Hellow World!");
     logger->error("Oops, Something went wrong!");
 
 	auto client = cc::Client("localhost", 2000);
