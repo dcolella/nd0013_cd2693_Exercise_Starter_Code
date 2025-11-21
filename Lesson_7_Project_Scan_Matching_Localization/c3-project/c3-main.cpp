@@ -287,12 +287,14 @@ int main(){
 
 	auto logger = spdlog::basic_logger_mt("basic_logger", "dclogs.txt", true);
 
-	logger->set_level(spdlog::level::debug); 
+	//logger->set_level(spdlog::level::debug); 
 
+	/*
 	logger->info("Application started");
     logger->warn("Hellow World!");
 	logger->debug("Debug Hellow World!");
     logger->error("Oops, Something went wrong!");
+	*/
 
 	auto client = cc::Client("localhost", 2000);
 	client.SetTimeout(2s);
@@ -315,6 +317,13 @@ int main(){
     lidar_bp.SetAttribute("range", "30");
 	lidar_bp.SetAttribute("rotation_frequency", "60");
 	lidar_bp.SetAttribute("points_per_second", "500000");
+
+	logger->info("lidar attribute upper_fov: {}", lidar_bp.GetAttributes("upper_fov"));
+	logger->info("lidar attribute lower_fov: {}", lidar_bp.GetAttributes("lower_fov"));
+	logger->info("lidar attribute channels: {}", lidar_bp.GetAttributes("channels"));
+	logger->info("lidar attribute range: {}", lidar_bp.GetAttributes("range"));
+	logger->info("lidar attribute rotation_frequency: {}", lidar_bp.GetAttributes("rotation_frequency"));
+	logger->info("lidar attribute points_per_second: {}", lidar_bp.GetAttributes("points_per_second"));
 	
 /*
 	lidar_bp.SetAttribute("channels", "32");               
