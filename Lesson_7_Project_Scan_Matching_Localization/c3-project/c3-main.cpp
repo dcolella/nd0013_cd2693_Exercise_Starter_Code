@@ -277,17 +277,28 @@ Pose predictPoseFromSpeedAndYawRate(const Pose current, double speed, double yaw
 
 }
 
-void printPose(Pose pose, std::string label){
+void printPose(Pose pose, std::string label, auto logger){
 	printf("%s Position: < %6.3f, %6.3f, %6.3f >\n", label.c_str(), pose.position.x, pose.position.y, pose.position.z);
 	printf("%s Rotation: < %6.3f, %6.3f, %6.3f >\n\n", label.c_str(), pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll);
+
 }
 
 
 int main(){
 
-	auto logger = spdlog::basic_logger_mt("basic_logger", "dclogs.txt", true);
-
+	//auto logger = spdlog::basic_logger_mt("basic_logger", "dclogs.txt", true);
 	//logger->set_level(spdlog::level::debug); 
+
+	// Create a console sink (colored)
+	auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+	console_sink->set_level(spdlog::level::info); // console log level
+
+	// Create a file sink (truncate file each run)
+	auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("dclogs.txt", true);
+	file_sink->set_level(spdlog::level::info);    // file log level
+
+	spdlog::logger logger("multi_logger", {console_sink, file_sink});
+    logger.set_level(spdlog::level::info); // global log level
 
 	/*
 	logger->info("Application started");
