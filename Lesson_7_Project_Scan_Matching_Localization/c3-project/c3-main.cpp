@@ -203,7 +203,6 @@ int main(){
 			pcl::VoxelGrid<PointT> vg;
 			vg.setInputCloud(scanCloud);
 			double filterRes = 0.2;
-				
 			vg.setLeafSize(filterRes, filterRes, filterRes);
 			typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
 			vg.filter(*cloudFiltered);
@@ -211,6 +210,8 @@ int main(){
 			//pose = ....
 
 			// TODO: Transform scan so it aligns with ego's actual pose and render that scan
+
+			Eigen::Matrix4d transform =  transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 
 			//viewer->removePointCloud("scan");
 			// TODO: Change `scanCloud` below to your transformed scan
