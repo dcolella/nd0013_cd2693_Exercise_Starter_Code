@@ -285,7 +285,7 @@ void printPose(Pose pose, std::string label){
 
 int main(){
 
-	auto logger = spdlog::basic_logger_mt("basic_logger", "dclogs.txt");
+	auto logger = spdlog::basic_logger_mt("basic_logger", "dclogs.txt", true);
 
 	logger->info("Application started");
     logger->warn("Hellow World!");
