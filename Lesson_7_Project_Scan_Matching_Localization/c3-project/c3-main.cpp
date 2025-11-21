@@ -407,7 +407,7 @@ int main(){
 	Pose poseRef(Point(vehicle->GetTransform().location.x, vehicle->GetTransform().location.y, vehicle->GetTransform().location.z), Rotate(vehicle->GetTransform().rotation.yaw * pi/180, vehicle->GetTransform().rotation.pitch * pi/180, vehicle->GetTransform().rotation.roll * pi/180));
 	double maxError = 0;
 
-	printPose(poseRef, "Initial Pose Ref");
+	printPose(poseRef, "Initial Pose Ref", logger);
 	
 	while (!viewer->wasStopped())
   	{
@@ -423,7 +423,7 @@ int main(){
 		viewer->removeShape("box0");
 		viewer->removeShape("boxFill0");
 		Pose truePose = Pose(Point(vehicle->GetTransform().location.x, vehicle->GetTransform().location.y, vehicle->GetTransform().location.z), Rotate(vehicle->GetTransform().rotation.yaw * pi/180, vehicle->GetTransform().rotation.pitch * pi/180, vehicle->GetTransform().rotation.roll * pi/180)) - poseRef;
-		printPose(truePose, "True Pose");
+		printPose(truePose, "True Pose", logger);
 		drawCar(truePose, 0,  Color(1,0,0), 0.7, viewer);
 		double theta = truePose.rotation.yaw;
 		double stheta = control.steer * pi/4 + theta;
@@ -460,7 +460,7 @@ int main(){
 			std::cout << "speed:" << vehicle_speed << endl;
 			std::cout << "yaw rate:" << vehicle_yaw_rate << endl;
 
-			printPose(truePose, "truePose.");	
+			printPose(truePose, "truePose.", logger);	
 
 			if (vehicle_speed > 0.000358775) {					
 				double filterRes = 0.3;
@@ -476,7 +476,7 @@ int main(){
 				
 				pose = getPose(transform);
 				std::cout << "Predicted pose using motion model." << std::endl;
-				printPose(pose, "predictedWithMotionModel.");
+				printPose(pose, "predictedWithMotionModel.", logger);
 			} else {
 				double filterRes = 0.2;
 				
@@ -490,7 +490,7 @@ int main(){
 				lastPredictionTime = std::chrono::system_clock::now();
 				pose = getPose(transform);
 				std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
-				printPose(pose, "predictedWithoutMotionModel.");
+				printPose(pose, "predictedWithoutMotionModel.", logger);
 				//if (lastPredictionTime == std::chrono::time_point<std::chrono::system_clock>()) {
 				
 				//}
