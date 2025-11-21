@@ -461,7 +461,7 @@ int main(){
 
 
 			
-			if (vehicle_speed > 1000) {			
+			if (vehicle_speed > 0.5) {			
 				
 				double filterRes = 0.2;
 				
