@@ -42,6 +42,9 @@ using namespace std;
 #include <optional>
 #include <chrono>
 
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
+
 
 PointCloudT pclCloud;
 cc::Vehicle::Control control;
@@ -281,6 +284,12 @@ void printPose(Pose pose, std::string label){
 
 
 int main(){
+
+	auto logger = spdlog::basic_logger_mt("basic_logger", "dclogs.txt");
+
+	logger->info("Application started");
+    logger->warn("Hellow World!");
+    logger->error("Oops, Something went wrong!");
 
 	auto client = cc::Client("localhost", 2000);
 	client.SetTimeout(2s);
