@@ -458,7 +458,7 @@ int main(){
 
 			printPose(truePose, "truePose.", logger);	
 
-			if (vehicle_speed > 0.000358775) {					
+			if (vehicle_speed > 0.5) {					
 				double filterRes = 0.3;
 				
 				vg.setLeafSize(filterRes, filterRes, filterRes);
