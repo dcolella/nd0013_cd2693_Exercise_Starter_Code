@@ -310,20 +310,28 @@ int main(){
 	//Create lidar
 	auto lidar_bp = *(blueprint_library->Find("sensor.lidar.ray_cast"));
 	// CANDO: Can modify lidar values to get different scan resolutions
-	
-	lidar_bp.SetAttribute("upper_fov", "15");
-    lidar_bp.SetAttribute("lower_fov", "-25");
-    lidar_bp.SetAttribute("channels", "32");
-    lidar_bp.SetAttribute("range", "30");
-	lidar_bp.SetAttribute("rotation_frequency", "60");
-	lidar_bp.SetAttribute("points_per_second", "500000");
 
-	logger->info("lidar attribute upper_fov: {}", lidar_bp.GetAttribute("upper_fov"));
-	logger->info("lidar attribute lower_fov: {}", lidar_bp.GetAttribute("lower_fov"));
-	logger->info("lidar attribute channels: {}", lidar_bp.GetAttribute("channels"));
-	logger->info("lidar attribute range: {}", lidar_bp.GetAttribute("range"));
-	logger->info("lidar attribute rotation_frequency: {}", lidar_bp.GetAttribute("rotation_frequency"));
-	logger->info("lidar attribute points_per_second: {}", lidar_bp.GetAttribute("points_per_second"));
+	string upper_fov = "15";
+	string lower_fov = "-25";
+	string channels = "32";
+	string range = "30";
+	string rotation_frequency = "60";
+	string points_per_second = "500000";
+
+	
+	lidar_bp.SetAttribute("upper_fov", upper_fov);
+    lidar_bp.SetAttribute("lower_fov", lower_fov);
+    lidar_bp.SetAttribute("channels", channels);
+    lidar_bp.SetAttribute("range", range);
+	lidar_bp.SetAttribute("rotation_frequency", rotation_frequency);
+	lidar_bp.SetAttribute("points_per_second", points_per_second);
+
+	logger->info("lidar attribute upper_fov: {}", upper_fov);
+	logger->info("lidar attribute lower_fov: {}", lower_fov);
+	logger->info("lidar attribute channels: {}", channels);
+	logger->info("lidar attribute range: {}",range);
+	logger->info("lidar attribute rotation_frequency: {}", rotation_frequency);
+	logger->info("lidar attribute points_per_second: {}", points_per_second);
 	
 /*
 	lidar_bp.SetAttribute("channels", "32");               
