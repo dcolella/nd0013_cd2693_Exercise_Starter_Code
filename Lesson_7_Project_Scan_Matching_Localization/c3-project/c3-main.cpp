@@ -197,7 +197,7 @@ Eigen::Matrix4d hybridScanMatch(
     Eigen::Matrix4d init_guess,
     double voxel_size = 0.2,       // downsampling
     int ndt_iterations = 35,
-    int icp_iterations = 50)
+    int icp_iterations = 50, logger)
 {
     // --- 1. Downsample scan for speed and stability ---
     PointCloudT::Ptr filteredScan(new PointCloudT);
@@ -207,10 +207,10 @@ Eigen::Matrix4d hybridScanMatch(
     vg.filter(*filteredScan);
 
     // --- 2. Coarse alignment with NDT ---
-    Eigen::Matrix4d ndt_transform = getTransformWithNDT(mapCloud, filteredScan, init_guess, ndt_iterations);
+    Eigen::Matrix4d ndt_transform = getTransformWithNDT(mapCloud, filteredScan, init_guess, ndt_iterations, logger);
 
     // --- 3. Refine with ICP ---
-    Eigen::Matrix4d icp_transform = getTransformWithICP(mapCloud, filteredScan, ndt_transform, icp_iterations);
+    Eigen::Matrix4d icp_transform = getTransformWithICP(mapCloud, filteredScan, ndt_transform, icp_iterations, logger);
 
     // Optional: Check convergence / fitness score if you modify getTransformWithICP to return it
     // For now, fallback to NDT if ICP did not improve anything
@@ -476,8 +476,8 @@ int main(){
 				
 				pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
 				transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
-				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 30);
-				transform = getTransformWithICP(mapCloud, cloudFiltered, getTransformWithNDT(mapCloud, cloudFiltered, transform, 30), 50);
+				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 30, logger);
+				transform = getTransformWithICP(mapCloud, cloudFiltered, getTransformWithNDT(mapCloud, cloudFiltered, transform, 30, logger), 50);
 				
 				pose = getPose(transform);
 				//std::cout << "Predicted pose using motion model." << std::endl;
@@ -492,7 +492,7 @@ int main(){
 				//pose = truePose; // No change in pose
 				
 				transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
-				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 30);
+				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 30, logger);
 				lastPredictionTime = std::chrono::system_clock::now();
 				pose = getPose(transform);
 				//std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
