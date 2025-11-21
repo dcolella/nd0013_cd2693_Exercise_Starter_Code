@@ -446,7 +446,14 @@ int main(){
 			pcl::VoxelGrid<PointT> vg;
 			vg.setInputCloud(scanCloud);
 
-			Eigen::Matrix4d transform;
+			// ***** Added for test
+			double filterRes = 0.2;	
+			vg.setLeafSize(filterRes, filterRes, filterRes);
+			typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
+			vg.filter(*cloudFiltered);
+			// ***** END
+
+			Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 
 			double vehicle_speed = getVehicleSpeedMs(vehicle);
 			double vehicle_yaw_rate = getVehicleYawRateRadS(vehicle);
@@ -458,6 +465,8 @@ int main(){
 
 			printPose(truePose, "truePose.", logger);	
 
+
+			/**** REMOVED TEMPORARLY
 			if (vehicle_speed > 0.5) {			
 				
 				double filterRes = 0.2;
@@ -497,6 +506,7 @@ int main(){
 				
 			}
 			
+			*/
 			
 			// TODO: Find pose transform by using ICP or NDT matching
 			//pose = ....
