@@ -443,8 +443,8 @@ int main(){
 			new_scan = true;
 
 			// TODO: (Filter scan using voxel filter)
-			pcl::VoxelGrid<PointT> vg;
-			vg.setInputCloud(scanCloud);
+			//pcl::VoxelGrid<PointT> vg;
+			//vg.setInputCloud(scanCloud);
 
 			Eigen::Matrix4d transform;
 
@@ -458,7 +458,9 @@ int main(){
 
 			printPose(truePose, "truePose.", logger);	
 
-			if (vehicle_speed > 0.5) {					
+			if (vehicle_speed > 0.5) {			
+				pcl::VoxelGrid<PointT> vg;
+				vg.setInputCloud(scanCloud);		
 				double filterRes = 0.3;
 				
 				vg.setLeafSize(filterRes, filterRes, filterRes);
@@ -475,6 +477,8 @@ int main(){
 				logger.info("Predicted pose using motion model.");
 				printPose(pose, "predictedWithMotionModel.", logger);
 			} else {
+				pcl::VoxelGrid<PointT> vg;
+				vg.setInputCloud(scanCloud);
 				double filterRes = 0.2;
 				
 				vg.setLeafSize(filterRes, filterRes, filterRes);
