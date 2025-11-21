@@ -479,7 +479,7 @@ int main(){
 			} else {
 				pcl::VoxelGrid<PointT> vg;
 				vg.setInputCloud(scanCloud);
-				double filterRes = 0.2;
+				double filterRes = 0.1;
 				
 				vg.setLeafSize(filterRes, filterRes, filterRes);
 				typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
