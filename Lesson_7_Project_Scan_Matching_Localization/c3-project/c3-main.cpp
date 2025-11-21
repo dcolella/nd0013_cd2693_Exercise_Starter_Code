@@ -445,6 +445,7 @@ int main(){
 			// TODO: (Filter scan using voxel filter)
 			pcl::VoxelGrid<PointT> vg;
 			vg.setInputCloud(scanCloud);
+			typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
 
 			Eigen::Matrix4d transform;
 
@@ -465,7 +466,7 @@ int main(){
 				double filterRes = 0.2;
 				
 				vg.setLeafSize(filterRes, filterRes, filterRes);
-				typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
+				
 				vg.filter(*cloudFiltered);
 				
 				pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
@@ -482,7 +483,7 @@ int main(){
 				double filterRes = 0.2;
 				
 				vg.setLeafSize(filterRes, filterRes, filterRes);
-				typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
+				
 				vg.filter(*cloudFiltered);
 				//pose = truePose; // No change in pose
 				
