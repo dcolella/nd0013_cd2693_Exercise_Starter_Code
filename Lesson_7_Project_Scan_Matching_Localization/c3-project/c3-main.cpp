@@ -478,7 +478,7 @@ int main(){
 				pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
 				transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 30, logger);
-				transform = getTransformWithICP(mapCloud, cloudFiltered, getTransformWithNDT(mapCloud, cloudFiltered, transform, 30, logger), 50);
+				transform = getTransformWithICP(mapCloud, cloudFiltered, getTransformWithNDT(mapCloud, cloudFiltered, transform, 30, logger), 50, logger);
 				
 				pose = getPose(transform);
 				//std::cout << "Predicted pose using motion model." << std::endl;
