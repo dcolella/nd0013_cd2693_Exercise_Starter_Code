@@ -195,9 +195,10 @@ Eigen::Matrix4d hybridScanMatch(
     PointCloudT::Ptr mapCloud,
     PointCloudT::Ptr scanCloud,
     Eigen::Matrix4d init_guess,
+	auto logger,
     double voxel_size = 0.2,       // downsampling
     int ndt_iterations = 35,
-    int icp_iterations = 50, auto logger)
+    int icp_iterations = 50)
 {
     // --- 1. Downsample scan for speed and stability ---
     PointCloudT::Ptr filteredScan(new PointCloudT);
