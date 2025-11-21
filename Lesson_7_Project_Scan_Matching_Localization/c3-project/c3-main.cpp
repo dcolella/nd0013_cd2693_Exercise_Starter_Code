@@ -246,16 +246,6 @@ void printTime(std::chrono::time_point<std::chrono::system_clock> time, std::str
 	logger.info("{}: {} ms since steady_clock epoch", label.c_str(), ms);
 }
 
-void printPosePosition(Pose pose, std::string label, auto logger){
-	//std::cout << label << "position.x:" << std::fixed << std::setprecision(2) << pose.position.x << endl;
-	//std::cout << label << "position.y:" << std::fixed << std::setprecision(2) << pose.position.y << endl;
-	//std::cout << label << "position.z:" << std::fixed << std::setprecision(2) << pose.position.z << endl;
-
-	logger.info("{} position.x:{} ",  label.c_str(), pose.position.x);
-	logger.info("{} position.y:{} ",  label.c_str(), pose.position.y);
-	logger.info("{} position.z:{} ",  label.c_str(), pose.position.z);
-}
-
 Pose predictPoseFromSpeedAndYawRate(const Pose current, double speed, double yaw_rate, std::chrono::time_point<std::chrono::system_clock> &lastPredictedPoseTime){
 
 	auto now = std::chrono::system_clock::now();
@@ -289,8 +279,8 @@ void printPose(Pose pose, std::string label, auto logger){
 	//printf("%s Position: < %6.3f, %6.3f, %6.3f >\n", label.c_str(), pose.position.x, pose.position.y, pose.position.z);
 	//printf("%s Rotation: < %6.3f, %6.3f, %6.3f >\n\n", label.c_str(), pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll);
 
-	logger.info("{} Position: < {}, {}, {} ",  label.c_str(),  pose.position.x, pose.position.y, pose.position.z);
-	logger.info("{} Rotation: < {}, {}, {} ",  label.c_str(), pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll);
+	logger.info("{} Position: < {:6.3f}, {:6.3f}, {:6.3f} ",  label.c_str(),  pose.position.x, pose.position.y, pose.position.z);
+	logger.info("{} Rotation: < {:6.3f}, {:6.3f}, {:6.3f} ",  label.c_str(), pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll);
 
 }
 
@@ -463,8 +453,8 @@ int main(){
 
 			//std::cout << "speed:" << vehicle_speed << endl;
 			//std::cout << "yaw rate:" << vehicle_yaw_rate << endl;
-			logger.info("vehicle speed: {}", vehicle_speed);
-			logger.info("vehicle yaw rate: {}", vehicle_yaw_rate);
+			logger.info("vehicle speed: {:.4f}", vehicle_speed);
+			logger.info("vehicle yaw rate: {:.4f}", vehicle_yaw_rate);
 
 			printPose(truePose, "truePose.", logger);	
 
@@ -497,7 +487,7 @@ int main(){
 				lastPredictionTime = std::chrono::system_clock::now();
 				pose = getPose(transform);
 				//std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
-				logger.info("Speed is zero, skipping motion model prediction.");
+				logger.info("Skipping motion model prediction.");
 				printPose(pose, "predictedWithoutMotionModel.", logger);
 				//if (lastPredictionTime == std::chrono::time_point<std::chrono::system_clock>()) {
 				
