@@ -277,7 +277,7 @@ Pose predictPoseFromSpeedAndYawRate(const Pose current, double speed, double yaw
 
 }
 
-void printPose(Pose pose, std::string label, auto logger){
+void printPose(Pose pose, std::string label){
 	printf("%s Position: < %6.3f, %6.3f, %6.3f >\n", label.c_str(), pose.position.x, pose.position.y, pose.position.z);
 	printf("%s Rotation: < %6.3f, %6.3f, %6.3f >\n\n", label.c_str(), pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll);
 
