@@ -486,10 +486,10 @@ int main(){
 				
 				vg.filter(*cloudFiltered);
 				//pose = truePose; // No change in pose
-				
+				pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
 				transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 30, logger);
-				lastPredictionTime = std::chrono::system_clock::now();
+				//lastPredictionTime = std::chrono::system_clock::now();
 				pose = getPose(transform);
 				//std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
 				logger.info("Skipping motion model prediction.");
