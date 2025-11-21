@@ -318,12 +318,12 @@ int main(){
 	lidar_bp.SetAttribute("rotation_frequency", "60");
 	lidar_bp.SetAttribute("points_per_second", "500000");
 
-	logger->info("lidar attribute upper_fov: {}", lidar_bp.GetAttributes("upper_fov"));
-	logger->info("lidar attribute lower_fov: {}", lidar_bp.GetAttributes("lower_fov"));
-	logger->info("lidar attribute channels: {}", lidar_bp.GetAttributes("channels"));
-	logger->info("lidar attribute range: {}", lidar_bp.GetAttributes("range"));
-	logger->info("lidar attribute rotation_frequency: {}", lidar_bp.GetAttributes("rotation_frequency"));
-	logger->info("lidar attribute points_per_second: {}", lidar_bp.GetAttributes("points_per_second"));
+	logger->info("lidar attribute upper_fov: {}", lidar_bp.GetAttribute("upper_fov"));
+	logger->info("lidar attribute lower_fov: {}", lidar_bp.GetAttribute("lower_fov"));
+	logger->info("lidar attribute channels: {}", lidar_bp.GetAttribute("channels"));
+	logger->info("lidar attribute range: {}", lidar_bp.GetAttribute("range"));
+	logger->info("lidar attribute rotation_frequency: {}", lidar_bp.GetAttribute("rotation_frequency"));
+	logger->info("lidar attribute points_per_second: {}", lidar_bp.GetAttribute("points_per_second"));
 	
 /*
 	lidar_bp.SetAttribute("channels", "32");               
