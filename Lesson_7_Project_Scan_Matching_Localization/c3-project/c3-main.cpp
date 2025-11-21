@@ -242,10 +242,14 @@ void printTime(std::chrono::time_point<std::chrono::system_clock> time, std::str
 	std::cout << label << ": " << ms << " ms since steady_clock epoch\n";
 }
 
-void printPosePosition(Pose pose, std::string label){
-	std::cout << label << "position.x:" << std::fixed << std::setprecision(2) << pose.position.x << endl;
-	std::cout << label << "position.y:" << std::fixed << std::setprecision(2) << pose.position.y << endl;
-	std::cout << label << "position.z:" << std::fixed << std::setprecision(2) << pose.position.z << endl;
+void printPosePosition(Pose pose, std::string label, auto logger){
+	//std::cout << label << "position.x:" << std::fixed << std::setprecision(2) << pose.position.x << endl;
+	//std::cout << label << "position.y:" << std::fixed << std::setprecision(2) << pose.position.y << endl;
+	//std::cout << label << "position.z:" << std::fixed << std::setprecision(2) << pose.position.z << endl;
+
+	logger.info("{} position.x:{} ",  label.c_str(), pose.position.x);
+	logger.info("{} position.y:{} ",  label.c_str(), pose.position.y);
+	logger.info("{} position.z:{} ",  label.c_str(), pose.position.z);
 }
 
 Pose predictPoseFromSpeedAndYawRate(const Pose current, double speed, double yaw_rate, std::chrono::time_point<std::chrono::system_clock> &lastPredictedPoseTime){
@@ -277,9 +281,12 @@ Pose predictPoseFromSpeedAndYawRate(const Pose current, double speed, double yaw
 
 }
 
-void printPose(Pose pose, std::string label){
-	printf("%s Position: < %6.3f, %6.3f, %6.3f >\n", label.c_str(), pose.position.x, pose.position.y, pose.position.z);
-	printf("%s Rotation: < %6.3f, %6.3f, %6.3f >\n\n", label.c_str(), pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll);
+void printPose(Pose pose, std::string label, auto logger){
+	//printf("%s Position: < %6.3f, %6.3f, %6.3f >\n", label.c_str(), pose.position.x, pose.position.y, pose.position.z);
+	//printf("%s Rotation: < %6.3f, %6.3f, %6.3f >\n\n", label.c_str(), pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll);
+
+	logger.info("{} Position: < {}, {}, {} ",  label.c_str(),  pose.position.x, pose.position.y, pose.position.z);
+	logger.info("{} Rotation: < {}, {}, {} ",  label.c_str(), pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll);
 
 }
 
