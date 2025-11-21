@@ -287,6 +287,8 @@ int main(){
 
 	auto logger = spdlog::basic_logger_mt("basic_logger", "dclogs.txt", true);
 
+	logger->set_level(spdlog::level::debug); 
+
 	logger->info("Application started");
     logger->warn("Hellow World!");
 	logger->debug("Debug Hellow World!");
