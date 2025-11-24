@@ -424,8 +424,8 @@ int main(){
 
 	lastPredictionTime = std::chrono::system_clock::now();
 
-	std::chrono::milliseconds avg_processing_elapsed_time = 0;
-	std::chrono::milliseconds processing_elapsed_time = 0;
+	double avg_processing_elapsed_time = 0;
+	double processing_elapsed_time = 0;
 	
 	int scan_count = 0;
 	
@@ -539,7 +539,7 @@ int main(){
 			
 			endTime = std::chrono::system_clock::now();
 			//processing_elapsed_time = sw_processing_time.elapsed().count();
-			processing_elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+			processing_elapsed_time = std::chrono::duration_<double, std::chrono::milliseconds>(endTime - startTime).count();
 
 			avg_processing_elapsed_time = (avg_processing_elapsed_time + processing_elapsed_time) / scan_count;
 
@@ -604,7 +604,7 @@ int main(){
 		}
 
 		
-		logger.info("Average Processing Time: {} ms", avg_processing_elapsed_time);
+		
   	}
 	return 0;
 }
