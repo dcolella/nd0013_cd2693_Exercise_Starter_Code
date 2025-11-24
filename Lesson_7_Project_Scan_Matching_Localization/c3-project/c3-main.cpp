@@ -331,8 +331,8 @@ int main(){
 	auto lidar_bp = *(blueprint_library->Find("sensor.lidar.ray_cast"));
 	// CANDO: Can modify lidar values to get different scan resolutions
 
-	double points_per_second = 1000000;
-	double rotation_frequency = 20;
+	double points_per_second = 1500000;
+	double rotation_frequency = 40;
 	int channels = 32;
 	double range = 30.0;
 
