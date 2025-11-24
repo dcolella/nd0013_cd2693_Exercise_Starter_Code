@@ -539,7 +539,7 @@ int main(){
 			
 			endTime = std::chrono::system_clock::now();
 			//processing_elapsed_time = sw_processing_time.elapsed().count();
-			processing_elapsed_time = std::chrono::duration_<double, std::chrono::milliseconds>(endTime - startTime).count();
+			processing_elapsed_time = std::chrono::duration<double, std::chrono::milliseconds>(endTime - startTime).count();
 
 			avg_processing_elapsed_time = (avg_processing_elapsed_time + processing_elapsed_time) / scan_count;
 
