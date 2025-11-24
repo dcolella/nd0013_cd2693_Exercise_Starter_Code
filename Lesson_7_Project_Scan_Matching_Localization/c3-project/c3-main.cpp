@@ -333,7 +333,7 @@ int main(){
 
 	double points_per_second = 1500000;
 	double rotation_frequency = 40;
-	int channels = 32;
+	int channels = 64;
 	double range = 30.0;
 
 	double points_per_rotation = points_per_second / rotation_frequency;
