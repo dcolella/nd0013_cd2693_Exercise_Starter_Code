@@ -155,6 +155,149 @@ Eigen::Matrix4d getTransformWithICP(PointCloudT::Ptr target, PointCloudT::Ptr so
 
 }
 
+vector<int> NN(PointCloudT::Ptr target, PointCloudT::Ptr source, Eigen::Matrix4d initTransform, double dist){
+	
+	PointCloudT::Ptr transformSource (new PointCloudT); 
+  	pcl::transformPointCloud (*source, *transformSource, initTransform);
+
+	pcl::KdTreeFLANN<PointT> kdtree;
+	kdtree.setInputCloud (target);
+
+	vector<int> associations;
+
+	int index = 0;
+	for(PointT point : transformSource->points ){
+
+		vector<int> pointIdxRadiusSearch;
+  		vector<float> pointRadiusSquaredDistance;
+		if ( kdtree.radiusSearch (point, dist, pointIdxRadiusSearch, pointRadiusSquaredDistance) > 0 )
+ 		{
+			associations.push_back(pointIdxRadiusSearch[0]);
+		}
+		else{
+			associations.push_back(-1);
+		}
+		index++;
+	}
+
+	return associations;
+}
+
+vector<int> NN(PointCloudT::Ptr target, PointCloudT::Ptr source, Eigen::Matrix4d initTransform, double dist){
+	
+	PointCloudT::Ptr transformSource (new PointCloudT); 
+  	pcl::transformPointCloud (*source, *transformSource, initTransform);
+
+	pcl::KdTreeFLANN<PointT> kdtree;
+	kdtree.setInputCloud (target);
+
+	vector<int> associations;
+
+	int index = 0;
+	for(PointT point : transformSource->points ){
+
+		vector<int> pointIdxRadiusSearch;
+  		vector<float> pointRadiusSquaredDistance;
+		if ( kdtree.radiusSearch (point, dist, pointIdxRadiusSearch, pointRadiusSquaredDistance) > 0 )
+ 		{
+			associations.push_back(pointIdxRadiusSearch[0]);
+		}
+		else{
+			associations.push_back(-1);
+		}
+		index++;
+	}
+
+	return associations;
+}
+
+vector<Pair> PairPoints(vector<int> associations, PointCloudT::Ptr target, PointCloudT::Ptr source){
+
+	vector<Pair> pairs;
+
+	int index = 0;
+	for(PointT point : source->points ){
+		int i = associations[index];
+		if( i >= 0)
+		{
+			PointT association = (*target)[i];
+			pairs.push_back(Pair(Point(point.x, point.y,0), Point(association.x, association.y,0)) );
+		}
+		index++;
+	}
+	return pairs;
+}
+
+Eigen::Matrix4d getTransformWithICPV2(vector<int> associations, PointCloudT::Ptr target, PointCloudT::Ptr source, Pose startingPose, int iterations){
+
+  	// align source with starting pose
+  	Eigen::Matrix4d initTransform = transform3D(startingPose.rotation.yaw, startingPose.rotation.pitch, startingPose.rotation.roll, startingPose.position.x, startingPose.position.y, startingPose.position.z);
+  	PointCloudT::Ptr transformSource (new PointCloudT); 
+  	pcl::transformPointCloud (*source, *transformSource, initTransform);
+
+	vector<Pair> pairs = PairPoints(associations, target, transformSource);
+
+	//cout << "score is " << Score(pairs, Eigen::MatrixXd::Identity(4,4) ) << endl;
+
+	Eigen::MatrixXd X(2,pairs.size());
+	Eigen::MatrixXd Y(2,pairs.size());
+	Eigen::MatrixXd P(2,1);
+	P << Eigen::MatrixXd::Zero(2,1);
+	Eigen::MatrixXd Q(2,1);
+	Q << Eigen::MatrixXd::Zero(2,1);
+
+	for(Pair pair : pairs){
+		P(0,0) += pair.p1.x;
+		P(1,0) += pair.p1.y;
+
+		Q(0,0) += pair.p2.x;
+		Q(1,0) += pair.p2.y;
+	}
+	P(0,0) = P(0,0)/pairs.size();
+	P(1,0) = P(1,0)/pairs.size();
+
+	Q(0,0) = Q(0,0)/pairs.size();
+	Q(1,0) = Q(1,0)/pairs.size();
+	int index = 0;
+	for(Pair pair : pairs){
+		X(0,index) = pair.p1.x - P(0,0);
+		X(1,index) = pair.p1.y - P(1,0);
+
+		Y(0,index) = pair.p2.x - Q(0,0);
+		Y(1,index) = pair.p2.y - Q(1,0);
+		index++;
+	}
+
+	// compute best R and t from using SVD
+	Eigen::MatrixXd S  = X * Y.transpose();
+	JacobiSVD<MatrixXd> svd(S, ComputeFullV | ComputeFullU);
+	Eigen::MatrixXd D;
+	D.setIdentity(svd.matrixV().cols(), svd.matrixV().cols());
+	D(svd.matrixV().cols()-1,svd.matrixV().cols()-1) = (svd.matrixV() * svd.matrixU().transpose() ).determinant();
+
+	Eigen::MatrixXd R  = svd.matrixV() * D * svd.matrixU().transpose();
+	Eigen::MatrixXd t  = Q - R * P;
+
+	Eigen::Matrix4d transformation_matrix;
+	transformation_matrix << Eigen::MatrixXd::Identity(4,4);
+
+	transformation_matrix(0,0) = R(0,0);
+	transformation_matrix(0,1) = R(0,1);
+	transformation_matrix(1,0) = R(1,0);
+	transformation_matrix(1,1) = R(1,1);
+	transformation_matrix(0,3) = t(0,0);
+	transformation_matrix(1,3) = t(1,0);
+
+	//cout << "score is " << Score(pairs, transformation_matrix ) << endl;
+
+	//cout << transformation_matrix << endl;
+
+	estimations = pairs;
+	transformation_matrix =  transformation_matrix * initTransform;
+  	return transformation_matrix;
+
+}
+
 
 Eigen::Matrix4d getTransformWithNDT(PointCloudT::Ptr mapCloud, typename pcl::PointCloud<PointT>::Ptr cloudFiltered, Eigen::Matrix4d init_guess , int iterations, auto logger){
 	pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> ndt;
@@ -284,6 +427,12 @@ void printPose(Pose pose, std::string label, auto logger){
 
 }
 
+Eigen::Matrix4d getLidarOffSetTransform(){
+	return  transform3D(
+		0, 0, 0,
+		-0.5, 0, 1.8
+	);
+}
 
 int main(){
 
@@ -323,38 +472,50 @@ int main(){
 	auto lidar_bp = *(blueprint_library->Find("sensor.lidar.ray_cast"));
 	// CANDO: Can modify lidar values to get different scan resolutions
 
-	string upper_fov = "15";
-	string lower_fov = "-25";
-	string channels = "32";
-	string range = "30";
-	string rotation_frequency = "60";
-	string points_per_second = "500000";
+	double points_per_second = 500000;
+	double rotation_frequency = 60;
+	int channels = 32;
+	double range = 30.0;
+
+	double points_per_rotation = points_per_second / rotation_frequency;
+	double points_per_channel_per_rotation = points_per_rotation / channels;
+	double horizontal_angular_res_deg = 360 * channels / points_per_rotation;
+
+	string upper_fov_str = "15";
+	string lower_fov_str = "-25";
+	string channels_str = std::to_string(channels);
+	string range_str = std::to_string(range);
+	string rotation_frequency_str = std::to_string(rotation_frequency);
+	string points_per_second_str = std::to_string(points_per_second);
 
 	
-	lidar_bp.SetAttribute("upper_fov", upper_fov);
-    lidar_bp.SetAttribute("lower_fov", lower_fov);
-    lidar_bp.SetAttribute("channels", channels);
-    lidar_bp.SetAttribute("range", range);
-	lidar_bp.SetAttribute("rotation_frequency", rotation_frequency);
-	lidar_bp.SetAttribute("points_per_second", points_per_second);
+	lidar_bp.SetAttribute("upper_fov", upper_fov_str);
+    lidar_bp.SetAttribute("lower_fov", lower_fov_str);
+    lidar_bp.SetAttribute("channels", channels_str);
+    lidar_bp.SetAttribute("range", range_str);
+	lidar_bp.SetAttribute("rotation_frequency", rotation_frequency_str);
+	lidar_bp.SetAttribute("points_per_second",points_per_second_str);
 
-	logger.info("lidar attribute upper_fov: {}", upper_fov);
-	logger.info("lidar attribute lower_fov: {}", lower_fov);
-	logger.info("lidar attribute channels: {}", channels);
-	logger.info("lidar attribute range: {}",range);
-	logger.info("lidar attribute rotation_frequency: {}", rotation_frequency);
-	logger.info("lidar attribute points_per_second: {}", points_per_second);
+	logger.info("lidar attribute upper_fov: {}", upper_fov_str);
+	logger.info("lidar attribute lower_fov: {}", lower_fov_str);
+	logger.info("lidar attribute channels: {}", channels_str);
+	logger.info("lidar attribute range: {}",range_str);
+	logger.info("lidar attribute rotation_frequency: {}", rotation_frequency_str);
+	logger.info("lidar attribute points_per_second: {}", points_per_second_str);
+	logger.info("lidar points_per_rotation: {}", points_per_second_str);
+	logger.info("lidar points_per_channel_per_rotation: {}", points_per_channel_per_rotation);
+	logger.info("lidar horizontal_angular_res_deg: {:.3f}", horizontal_angular_res_deg);
+
+	
+	
 	
 /*
 	lidar_bp.SetAttribute("channels", "32");               
-	lidar_bp.SetAttribute("upper_fov", "8");               
-	lidar_bp.SetAttribute("lower_fov", "-12");             
+	lidar_bp.SetAttribute("upper_fov", "15");               
+	lidar_bp.SetAttribute("lower_fov", "-25");             
 	lidar_bp.SetAttribute("range", "30");                  
-	lidar_bp.SetAttribute("rotation_frequency", "10");     
-	lidar_bp.SetAttribute("points_per_second", "1000000"); 
-	lidar_bp.SetAttribute("noise_stddev", "0.02");         
-	lidar_bp.SetAttribute("dropoff_general_rate", "0.0");  
-	lidar_bp.SetAttribute("returns", "Single");            
+	lidar_bp.SetAttribute("rotation_frequency", "60");     
+	lidar_bp.SetAttribute("points_per_second", "500000"); 
 	*/
 	auto user_offset = cg::Location(0, 0, 0);
 	auto lidar_transform = cg::Transform(cg::Location(-0.5, 0, 1.8) + user_offset);
@@ -401,9 +562,11 @@ int main(){
 	Pose poseRef(Point(vehicle->GetTransform().location.x, vehicle->GetTransform().location.y, vehicle->GetTransform().location.z), Rotate(vehicle->GetTransform().rotation.yaw * pi/180, vehicle->GetTransform().rotation.pitch * pi/180, vehicle->GetTransform().rotation.roll * pi/180));
 	double maxError = 0;
 
-	printPose(poseRef, "Initial Pose Ref", logger);
-
 	lastPredictionTime = std::chrono::system_clock::now();
+
+	std:size_t avg_processing_elapsed_time = 0;
+	std:size_t processing_elapsed_time = 0;
+	int scan_count = 0;
 	
 	while (!viewer->wasStopped())
   	{
@@ -441,7 +604,9 @@ int main(){
 		
 		
 		if(!new_scan){
+			scan_count++;
 			
+			spdlog::stopwatch sw_processing_time;
 			new_scan = true;
 
 			// TODO: (Filter scan using voxel filter)
@@ -470,10 +635,13 @@ int main(){
 				vg.setLeafSize(filterRes, filterRes, filterRes);
 				
 				vg.filter(*cloudFiltered);
+
+				// *** Applying Lidar offset
+				//transform = getLidarOffSetTransform() * transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 				
-				pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
+				
 				transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
-				//transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 30, logger);
+				
 				transform = getTransformWithICP(mapCloud, cloudFiltered, getTransformWithNDT(mapCloud, cloudFiltered, transform, 50, logger), 50, logger);
 				
 				pose = getPose(transform);
@@ -487,8 +655,10 @@ int main(){
 				vg.setLeafSize(filterRes, filterRes, filterRes);
 				
 				vg.filter(*cloudFiltered);
-				//pose = truePose; // No change in pose
-				pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
+				
+				// *** Applying Lidar offset
+				//transform = getLidarOffSetTransform() * transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
+
 				transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 50, logger);
 				
@@ -507,7 +677,12 @@ int main(){
 			// TODO: Find pose transform by using ICP or NDT matching
 			//pose = ....
 			
-			
+			processing_elapsed_time = sw_processing_time.elapsed().count();
+			avg_processing_elapsed_time = (avg_processing_elapsed_time + processing_elapsed_time) / scan_count;
+
+			logger.info("Processing Time: {} ms", processing_elapsed_time);
+			logger.info("Average Processing Time: {} ms", avg_processing_elapsed_time);
+
 
 			
 			/*
@@ -543,6 +718,13 @@ int main(){
 			viewer->addText("Pose error: "+to_string(poseError)+" m", 200, 150, 32, 1.0, 1.0, 1.0, "derror",0);
 			viewer->removeShape("dist");
 			viewer->addText("Distance: "+to_string(distDriven)+" m", 200, 200, 32, 1.0, 1.0, 1.0, "dist",0);
+
+			//**displaying lidar params and processing performances */
+			viewer->removeShape("ppr");
+			viewer->addText("Points per Rotations: "+to_string(points_per_rotation), 300, 200, 32, 1.0, 1.0, 1.0, "ppr",0);
+
+			viewer->removeShape("avgpt");
+			viewer->addText("Average Processing Time per scan: "+to_string(avg_processing_elapsed_time), 300, 150, 32, 1.0, 1.0, 1.0, "avgpt",0);
 			
 
 			if(maxError > 1.2 || distDriven >= 170.0 ){
@@ -557,6 +739,9 @@ int main(){
 
 			pclCloud.points.clear();
 		}
+
+		
+		logger.info("Average Processing Time: {} ms", avg_processing_elapsed_time);
   	}
 	return 0;
 }
