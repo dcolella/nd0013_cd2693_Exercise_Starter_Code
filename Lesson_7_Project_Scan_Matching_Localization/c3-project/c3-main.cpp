@@ -383,6 +383,9 @@ int main(){
 	bool new_scan = true;
 	bool first_scan = true;
 	std::chrono::time_point<std::chrono::system_clock> lastScanTime, startTime, endTime;
+	
+
+	pcl::console::TicToc scan_processing_timer;
 
 	
 
@@ -403,10 +406,10 @@ int main(){
 	typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
 	typename pcl::PointCloud<PointT>::Ptr scanCloud (new pcl::PointCloud<PointT>);
 
-	lidar->Listen([&new_scan, &startTime, &lastScanTime, &scanCloud](auto data){
+	lidar->Listen([&new_scan, &scan_processing_timer, &lastScanTime, &scanCloud](auto data){
 
 		if(new_scan){
-			startTime = std::chrono::system_clock::now();
+			scan_processing_timer.tic();
 			auto scan = boost::static_pointer_cast<csd::LidarMeasurement>(data);
 			for (auto detection : *scan){
 				if((detection.x*detection.x + detection.y*detection.y + detection.z*detection.z) > 8.0){
@@ -539,10 +542,7 @@ int main(){
 			// TODO: Find pose transform by using ICP or NDT matching
 			//pose = ....
 			
-			endTime = std::chrono::system_clock::now();
-			//processing_elapsed_time = sw_processing_time.elapsed().count();
-			std::chrono::duration<double, std::chrono::milliseconds> elapsed_time = endTime - startTime;
-			processing_elapsed_time = elapsed_time.count();
+			processing_elapsed_time = scan_processing_timer.toc ();
 
 			avg_processing_elapsed_time = (avg_processing_elapsed_time + processing_elapsed_time) / scan_count;
 
