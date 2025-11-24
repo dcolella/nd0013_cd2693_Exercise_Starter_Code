@@ -502,10 +502,10 @@ int main(){
 				vg.filter(*cloudFiltered);
 
 				// *** Applying Lidar offset
-				transform = getLidarOffSetTransform() * transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
+				//transform = getLidarOffSetTransform() * transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 				
 				
-				//transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
+				transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 				
 				transform = getTransformWithICP(mapCloud, cloudFiltered, getTransformWithNDT(mapCloud, cloudFiltered, transform, 50, logger), 50, logger);
 				
@@ -522,9 +522,9 @@ int main(){
 				vg.filter(*cloudFiltered);
 				
 				// *** Applying Lidar offset
-				transform = getLidarOffSetTransform() * transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
+				//transform = getLidarOffSetTransform() * transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 
-				//transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
+				transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 50, logger);
 				
 				pose = getPose(transform);
