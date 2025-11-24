@@ -494,13 +494,16 @@ int main(){
 
 
 			
-			if (vehicle_speed > 1000000) {			
+			if (vehicle_speed > 0) {			
 				
 				double filterRes = 0.2;
 				
 				vg.setLeafSize(filterRes, filterRes, filterRes);
 				
 				vg.filter(*cloudFiltered);
+
+
+				pose = predictPoseFromSpeedAndYawRate(pose, vehicle_speed, vehicle_yaw_rate, lastPredictionTime);
 
 				// *** Applying Lidar offset
 				//transform = getLidarOffSetTransform() * transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
