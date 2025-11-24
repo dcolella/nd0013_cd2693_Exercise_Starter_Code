@@ -384,6 +384,8 @@ int main(){
 	bool first_scan = true;
 	std::chrono::time_point<std::chrono::system_clock> lastScanTime, startTime, endTime;
 
+	
+
 	pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
   	viewer->setBackgroundColor (0, 0, 0);
 	viewer->registerKeyboardCallback(keyboardEventOccurred, (void*)&viewer);
@@ -539,7 +541,8 @@ int main(){
 			
 			endTime = std::chrono::system_clock::now();
 			//processing_elapsed_time = sw_processing_time.elapsed().count();
-			processing_elapsed_time = std::chrono::duration<double, std::chrono::milliseconds>(endTime - startTime).count();
+			std::chrono::duration<double, std::chrono::milliseconds> elapsed_time = endTime - startTime;
+			processing_elapsed_time = elapsed_time.count();
 
 			avg_processing_elapsed_time = (avg_processing_elapsed_time + processing_elapsed_time) / scan_count;
 
