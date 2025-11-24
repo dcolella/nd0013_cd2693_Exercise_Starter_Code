@@ -332,8 +332,8 @@ int main(){
 	// CANDO: Can modify lidar values to get different scan resolutions
 
 	double points_per_second = 1500000;
-	double rotation_frequency = 40;
-	int channels = 64;
+	double rotation_frequency = 60;
+	int channels = 32;
 	double range = 30.0;
 
 	double points_per_rotation = points_per_second / rotation_frequency;
@@ -526,8 +526,8 @@ int main(){
 				//transform = getLidarOffSetTransform() * transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 
 				transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
-				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 50, logger);
-				//transform = getTransformWithICP(mapCloud, cloudFiltered, transform, 50, logger);
+				//transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 50, logger);
+				transform = getTransformWithICP(mapCloud, cloudFiltered, transform, 50, logger);
 				
 				pose = getPose(transform);
 				//std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
