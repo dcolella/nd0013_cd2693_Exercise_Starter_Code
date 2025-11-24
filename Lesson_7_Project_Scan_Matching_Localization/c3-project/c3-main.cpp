@@ -530,7 +530,7 @@ int main(){
 
 
 				
-				Eigen::Matrix4d guess = getLidarOffSetTransform() *
+				transform = getLidarOffSetTransform() *
 				transform3D(pose.rotation.yaw,
 							pose.rotation.pitch,
 							pose.rotation.roll,
@@ -539,8 +539,8 @@ int main(){
 							pose.position.z);
 
 				// ICP: target = map
-				Eigen::Matrix4d transform =
-					getTransformWithICP(mapCloud, cloudFiltered, guess, 50, logger);
+				transform =
+					getTransformWithICP(mapCloud, cloudFiltered, transform, 50, logger);
 				
 				
 				
