@@ -382,7 +382,7 @@ int main(){
 	auto lidar = boost::static_pointer_cast<cc::Sensor>(lidar_actor);
 	bool new_scan = true;
 	bool first_scan = true;
-	std::chrono::time_point<std::chrono::system_clock> lastScanTime, startTime;
+	std::chrono::time_point<std::chrono::system_clock> lastScanTime, startTime, endTime;
 
 	pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
   	viewer->setBackgroundColor (0, 0, 0);
@@ -404,6 +404,7 @@ int main(){
 	lidar->Listen([&new_scan, &lastScanTime, &scanCloud](auto data){
 
 		if(new_scan){
+			startTime = std::chrono::system_clock::now();
 			auto scan = boost::static_pointer_cast<csd::LidarMeasurement>(data);
 			for (auto detection : *scan){
 				if((detection.x*detection.x + detection.y*detection.y + detection.z*detection.z) > 8.0){
@@ -423,8 +424,9 @@ int main(){
 
 	lastPredictionTime = std::chrono::system_clock::now();
 
-	std::size_t avg_processing_elapsed_time = 0;
-	std::size_t processing_elapsed_time = 0;
+	std::chrono::milliseconds avg_processing_elapsed_time = 0;
+	std::chrono::milliseconds processing_elapsed_time = 0;
+	
 	int scan_count = 0;
 	
 	while (!viewer->wasStopped())
@@ -464,8 +466,7 @@ int main(){
 		
 		if(!new_scan){
 			scan_count++;
-			
-			spdlog::stopwatch sw_processing_time;
+	
 			new_scan = true;
 
 			// TODO: (Filter scan using voxel filter)
@@ -536,7 +537,10 @@ int main(){
 			// TODO: Find pose transform by using ICP or NDT matching
 			//pose = ....
 			
-			processing_elapsed_time = sw_processing_time.elapsed().count();
+			endTime = std::chrono::system_clock::now();
+			//processing_elapsed_time = sw_processing_time.elapsed().count();
+			processing_elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+
 			avg_processing_elapsed_time = (avg_processing_elapsed_time + processing_elapsed_time) / scan_count;
 
 			logger.info("Processing Time: {} ms", processing_elapsed_time);
