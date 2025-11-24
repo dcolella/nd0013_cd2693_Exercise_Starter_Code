@@ -331,7 +331,7 @@ int main(){
 	auto lidar_bp = *(blueprint_library->Find("sensor.lidar.ray_cast"));
 	// CANDO: Can modify lidar values to get different scan resolutions
 
-	double points_per_second = 500000;
+	double points_per_second = 1000000;
 	double rotation_frequency = 60;
 	int channels = 32;
 	double range = 30.0;
@@ -587,10 +587,10 @@ int main(){
 
 			//**displaying lidar params and processing performances */
 			viewer->removeShape("ppr");
-			viewer->addText("Points per Rotations: "+to_string(points_per_rotation), 1000, 200, 32, 1.0, 1.0, 1.0, "ppr",0);
+			viewer->addText("Points per Rotations: "+to_string(points_per_rotation), 900, 200, 32, 1.0, 1.0, 1.0, "ppr",0);
 
 			viewer->removeShape("avgpt");
-			viewer->addText("Average Processing Time per scan: "+to_string(avg_processing_elapsed_time), 1000, 150, 32, 1.0, 1.0, 1.0, "avgpt",0);
+			viewer->addText("Average Processing Time per scan: "+to_string(avg_processing_elapsed_time), 900, 150, 32, 1.0, 1.0, 1.0, "avgpt",0);
 			
 
 			if(maxError > 1.2 || distDriven >= 170.0 ){
