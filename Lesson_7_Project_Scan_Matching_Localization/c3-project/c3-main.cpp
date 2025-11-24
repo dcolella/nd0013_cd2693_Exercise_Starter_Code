@@ -104,7 +104,7 @@ void Accuate(ControlState response, cc::Vehicle::Control& state){
 
 void drawCar(Pose pose, int num, Color color, double alpha, pcl::visualization::PCLVisualizer::Ptr& viewer){
 
-	BoxQ box;
+	BoxQ box; //test
 	box.bboxTransform = Eigen::Vector3f(pose.position.x, pose.position.y, 0);
     box.bboxQuaternion = getQuaternion(pose.rotation.yaw);
     box.cube_length = 4;
