@@ -401,7 +401,7 @@ int main(){
 	typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
 	typename pcl::PointCloud<PointT>::Ptr scanCloud (new pcl::PointCloud<PointT>);
 
-	lidar->Listen([&new_scan, &lastScanTime, &scanCloud](auto data){
+	lidar->Listen([&new_scan, &startTime, &lastScanTime, &scanCloud](auto data){
 
 		if(new_scan){
 			startTime = std::chrono::system_clock::now();
