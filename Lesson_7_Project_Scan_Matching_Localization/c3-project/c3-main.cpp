@@ -332,7 +332,7 @@ int main(){
 	// CANDO: Can modify lidar values to get different scan resolutions
 
 	double points_per_second = 1000000;
-	double rotation_frequency = 60;
+	double rotation_frequency = 40;
 	int channels = 32;
 	double range = 30.0;
 
