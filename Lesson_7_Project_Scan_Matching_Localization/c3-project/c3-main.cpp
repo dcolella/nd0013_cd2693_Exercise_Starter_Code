@@ -587,10 +587,10 @@ int main(){
 
 			//**displaying lidar params and processing performances */
 			viewer->removeShape("ppr");
-			viewer->addText("Points per Rotations: "+to_string(points_per_rotation), 300, 200, 32, 1.0, 1.0, 1.0, "ppr",0);
+			viewer->addText("Points per Rotations: "+to_string(points_per_rotation), 500, 200, 32, 1.0, 1.0, 1.0, "ppr",0);
 
 			viewer->removeShape("avgpt");
-			viewer->addText("Average Processing Time per scan: "+to_string(avg_processing_elapsed_time), 300, 150, 32, 1.0, 1.0, 1.0, "avgpt",0);
+			viewer->addText("Average Processing Time per scan: "+to_string(avg_processing_elapsed_time), 500, 150, 32, 1.0, 1.0, 1.0, "avgpt",0);
 			
 
 			if(maxError > 1.2 || distDriven >= 170.0 ){
