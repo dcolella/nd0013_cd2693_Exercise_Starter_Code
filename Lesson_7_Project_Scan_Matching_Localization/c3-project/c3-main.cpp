@@ -536,11 +536,14 @@ int main(){
 				transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 				//transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 50, logger);
 				//transform = getTransformWithICP(mapCloud, cloudFiltered, transform, 50, logger);
-				if (cloudFiltered->empty()) {
+				if (lastCloudFiltered->empty()) {
 					transform = getTransformWithICP(mapCloud, cloudFiltered, transform, 50, logger);
 					*lastCloudFiltered = *cloudFiltered;
+					std::cout << "lastCloudFiltered empty, using mapCloud for matching." << std::endl;
+
 				}else{
 					transform = getTransformWithICP(lastCloudFiltered, cloudFiltered, transform, 50, logger);
+					std::cout << "Using lastCloudFiltered scan for matching." << std::endl;
 				}
 				
 				
