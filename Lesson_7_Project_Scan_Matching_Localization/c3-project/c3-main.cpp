@@ -429,6 +429,7 @@ int main(){
 
 	lastPredictionTime = std::chrono::system_clock::now();
 
+	double total_processing_time = 0;
 	double avg_processing_elapsed_time = 0;
 	double processing_elapsed_time = 0;
 	
@@ -544,7 +545,7 @@ int main(){
 			
 			processing_elapsed_time = scan_processing_timer.toc ();
 
-			avg_processing_elapsed_time = (avg_processing_elapsed_time + processing_elapsed_time) / scan_count;
+			avg_processing_elapsed_time = (total_processing_time + processing_elapsed_time) / scan_count;
 
 			logger.info("Processing Time: {} ms", processing_elapsed_time);
 			logger.info("Average Processing Time: {} ms", avg_processing_elapsed_time);
