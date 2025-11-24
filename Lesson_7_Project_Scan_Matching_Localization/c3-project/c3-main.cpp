@@ -423,8 +423,8 @@ int main(){
 
 	lastPredictionTime = std::chrono::system_clock::now();
 
-	std:size_t avg_processing_elapsed_time = 0;
-	std:size_t processing_elapsed_time = 0;
+	std::size_t avg_processing_elapsed_time = 0;
+	std::size_t processing_elapsed_time = 0;
 	int scan_count = 0;
 	
 	while (!viewer->wasStopped())
