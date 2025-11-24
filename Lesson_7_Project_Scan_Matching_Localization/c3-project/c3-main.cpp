@@ -539,11 +539,12 @@ int main(){
 				if (lastCloudFiltered->empty()) {
 					transform = getTransformWithICP(mapCloud, cloudFiltered, transform, 50, logger);
 					*lastCloudFiltered = *cloudFiltered;
+					pcl::copyPointCloud(*cloudFiltered, *lastCloudFiltered);
 					std::cout << "lastCloudFiltered empty, using mapCloud for matching." << std::endl;
 
 				}else{
 					transform = getTransformWithICP(lastCloudFiltered, cloudFiltered, transform, 50, logger);
-					*lastCloudFiltered = *cloudFiltered;
+					pcl::copyPointCloud(*cloudFiltered, *lastCloudFiltered);
 					std::cout << "Using lastCloudFiltered scan for matching." << std::endl;
 
 				}
