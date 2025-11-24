@@ -416,7 +416,7 @@ int main(){
 					pclCloud.points.push_back(PointT(detection.x, detection.y, detection.z));
 				}
 			}
-			if(pclCloud.points.size() > 5000){ // CANDO: Can modify this value to get different scan resolutions
+			if(pclCloud.points.size() > 100000){ // CANDO: Can modify this value to get different scan resolutions
 				lastScanTime = std::chrono::system_clock::now();
 				*scanCloud = pclCloud;
 				new_scan = false;
@@ -516,7 +516,7 @@ int main(){
 				printPose(pose, "predictedWithMotionModel.", logger);
 			} else {
 				
-				double filterRes = 0.2;
+				double filterRes = 0.3;
 				
 				vg.setLeafSize(filterRes, filterRes, filterRes);
 				
