@@ -494,7 +494,7 @@ int main(){
 
 
 			
-			if (vehicle_speed > 0.5) {			
+			if (vehicle_speed > 1000000) {			
 				
 				double filterRes = 0.2;
 				
@@ -526,7 +526,8 @@ int main(){
 				//transform = getLidarOffSetTransform() * transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 
 				transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
-				transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 50, logger);
+				//transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 50, logger);
+				transform = getTransformWithICP(mapCloud, cloudFiltered, transform, 50, logger);
 				
 				pose = getPose(transform);
 				//std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
