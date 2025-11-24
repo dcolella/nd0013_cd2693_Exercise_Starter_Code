@@ -403,8 +403,9 @@ int main(){
   	cout << "Loaded " << mapCloud->points.size() << " data points from map.pcd" << endl;
 	renderPointCloud(viewer, mapCloud, "map", Color(0,0,1)); 
 
-	typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
+	//typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
 	typename pcl::PointCloud<PointT>::Ptr scanCloud (new pcl::PointCloud<PointT>);
+	typename pcl::PointCloud<PointT>::Ptr lastCloudFiltered (new pcl::PointCloud<PointT>);
 
 	lidar->Listen([&new_scan, &scan_processing_timer, &lastScanTime, &scanCloud](auto data){
 
@@ -434,6 +435,8 @@ int main(){
 	double processing_elapsed_time = 0;
 	
 	int scan_count = 0;
+
+
 	
 	while (!viewer->wasStopped())
   	{
@@ -524,6 +527,8 @@ int main(){
 				vg.setLeafSize(filterRes, filterRes, filterRes);
 				
 				vg.filter(*cloudFiltered);
+
+
 				
 				// *** Applying Lidar offset
 				//transform = getLidarOffSetTransform() * transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
@@ -531,7 +536,14 @@ int main(){
 				transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, pose.position.x, pose.position.y, pose.position.z);
 				//transform = getTransformWithNDT(mapCloud, cloudFiltered, transform, 50, logger);
 				//transform = getTransformWithICP(mapCloud, cloudFiltered, transform, 50, logger);
-				transform = getTransformWithICP(cloudFiltered, mapCloud, transform, 50, logger);
+				if (cloudFiltered->empty()) {
+					transform = getTransformWithICP(mapCloud, cloudFiltered, transform, 50, logger);
+					*lastCloudFiltered = *cloudFiltered;
+				}else{
+					transform = getTransformWithICP(lastCloudFiltered, cloudFiltered, transform, 50, logger);
+				}
+				
+				
 				
 				pose = getPose(transform);
 				//std::cout << "Speed is zero, skipping motion model prediction." << std::endl;
